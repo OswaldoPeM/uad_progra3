@@ -20,7 +20,7 @@ CAppGeometricFigures::CAppGeometricFigures(int window_width, int window_height) 
 	m_currentDeltaTime{ 0.0 },
 	m_objectRotation{ 0.0 },
 	m_objectPosition{ -1.5f, 0.0f, 0.0f },
-	m_rotationSpeed{ DEFAULT_ROTATION_SPEED },
+	m_rotationSpeed{ DEFAULT_ROTATION_SPEED },//DEFAULT_ROTATION_SPEED
 	m_pyramidVertexArrayObject{ 0 },
 	m_numFacesPyramid{ 0 },
 	m_renderPolygonMode{ 0 }
@@ -137,7 +137,8 @@ void CAppGeometricFigures::initialize()
 	}
 
 	m_initialized = true;
-	createPyramidGeometry();
+	//createPyramidGeometry();
+	createIcosaedroGeometry();
 }
 
 /* */
@@ -395,6 +396,248 @@ void CAppGeometricFigures::createPyramidGeometry()
 			m_pyramidVertexArrayObject = 0;
 		}
 	}
+}
+/* */
+void CAppGeometricFigures::createIcosaedroGeometry()
+{
+	float radio = 0.5f; //radio
+	// constants
+	const float PI = 3.1415926f;
+	const float H_ANGLE = PI / 180 * 72;    // 72 degree = 360 / 5
+	const float V_ANGLE = atanf(1.0f / 2);  // elevation = 26.565 degree
+
+	int i1, i2;                             // indices
+	float z, xy;                            // coords
+	float hAngle1 = -PI / 2 - H_ANGLE / 2;  // start from -126 deg at 1st row
+	float hAngle2 = -PI / 2;                // start from -90 deg at 2nd row
+
+	bool loaded = false;
+	
+	/**/
+	float vData[36],v1[3], v2[3], v3[3], v1v2[3], v1v3[3], norm[3];
+
+	vData[0] = 0;
+	vData[1] = 0;
+	vData[2] = radio;
+	for (int i = 1; i <= 5; ++i)
+	{
+		i1 = i * 3;         // index for 1st row
+		i2 = (i + 5) * 3;   // index for 2nd row
+
+		z = radio * sinf(V_ANGLE);            // elevaton
+		xy = radio * cosf(V_ANGLE);            // length on XY plane
+
+		vData[i1] = xy * cosf(hAngle1);      // x
+		vData[i2] = xy * cosf(hAngle2);
+		vData[i1 + 1] = xy * sinf(hAngle1);  // y
+		vData[i2 + 1] = xy * sinf(hAngle2);
+		vData[i1 + 2] = z;                   // z
+		vData[i2 + 2] = -z;
+
+		// next horizontal angles
+		hAngle1 += H_ANGLE;
+		hAngle2 += H_ANGLE;
+	}
+
+	vData[33] = 0;
+	vData[34] = 0;
+	vData[35] = -radio;
+
+	/*
+	float vData[36] = {
+		0.0, height, 0.0,                // TOP
+
+		-sideHalfX,  stepY + stepY,  -sideStepZ,   // SemiTop Left semiback
+		 -sideHalfX + sideStepX,  stepY + stepY,   sideHalfZ,   // SemiTop SemiLeft Front
+		sideHalfX - sideStepX,  stepY + stepY,  sideHalfZ,   // SemiTop SemiRigth Front
+		 sideHalfX,  stepY + stepY,	 -sideStepZ,   // semiTop rigth semiback
+		 0.0,	stepY + stepY,	-sideHalfZ, //semiTop Center Back
+
+		 0.0,	stepY,	8+sideHalfZ, // semiBase center front
+		 sideHalfX,	stepY,	sideStepZ, //semiBase right semifront
+		 sideHalfX-sideStepX,	stepY,	sideHalfZ, //semiBase semiRigth back
+		 -sideHalfX+sideStepX, stepY,	sideHalfZ,	//semiBase semiLeft Back
+		 -sideHalfX,	stepY,	-sideStepZ,// semiBase left semifront
+
+		 0.0,0.0,0.0 //base
+
+	};	
+	*/
+
+
+	float vertexUVs[24] =
+	{
+		0.5f,  0.90f, // TOP 
+		0.25f, 0.50f, // BOTTOM LEFT, FRONT
+		0.75f, 0.99f, // BOTTOM RIGHT, FRONT
+		0.11f, 0.40f, // BOTTOM LEFT, BACK
+		0.99f, 0.40f,  // BOTTOM RIGHT, BACK 
+		0.5f,  0.11f, // TOP 
+		0.25f, 0.90f, // BOTTOM LEFT, FRONT
+		0.75f, 0.99f, // BOTTOM RIGHT, FRONT
+		0.11f, 0.40f, // BOTTOM LEFT, BACK
+		0.99f, 0.40f, // BOTTOM RIGHT, FRONT
+		0.11f, 0.40f, // BOTTOM LEFT, BACK
+		0.99f, 0.40f  // BOTTOM RIGHT, BACK
+	};
+
+	m_numFacesPyramid = 20;
+
+	unsigned short tIndices[60] = { 
+		0, 2, 1,//top
+		0, 3, 2,
+		0, 4, 3,
+		0, 5, 4,
+		0, 1, 5,//top
+
+		1,2,6,
+		2,6,7,
+		2,3,7,
+		3,7,8,
+		3,8,4,
+		4,8,9,
+		4,9,5,
+		5,9,10,
+		5,10,1,
+		1,10,6,
+		
+		
+		//1,2,10, //middle
+		//2,6,10,
+		//2,3,6,
+		//3,7,6,
+		//3,4,7,
+		//4,8,7,
+		//4,5,8,
+		//5,9,8,
+		//5,1,9,
+		//1,10,9, //middle
+
+		10,6,11, 
+		6,7,11,
+		7,8,11,
+		8,9,11,
+		9,10,11
+
+
+		/*0, 1, 2,
+		0, 2, 4,
+		0, 4, 3,
+		0, 3, 1,
+		1, 3, 2,
+		2, 3, 4*/
+	};
+
+	float nData[60] = {
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0
+
+	};
+
+	unsigned short nIndices[60] = {
+		0, 0, 0,
+		1, 1, 1,
+		2, 2, 2,
+		3, 3, 3,
+		4, 4, 4,
+		5, 5, 5,
+		6, 6, 6,
+		7, 7, 7,
+		8, 8, 8,
+		9, 9, 9,
+		10,10,10,
+		11,11,11,
+		12,12,12,
+		13,13,13,
+		14,14,14,
+		15,15,15,
+		16,16,16,
+		17,17,17,
+		18,18,18,
+		19,19,19
+	};
+
+	for (int i = 0; i < m_numFacesPyramid; i++)
+	{
+		// Vertex 1
+		v1[0] = vData[tIndices[i * 3]];
+		v1[1] = vData[tIndices[i * 3] + 1];
+		v1[2] = vData[tIndices[i * 3] + 2];
+
+		// Vertex 2
+		v2[0] = vData[tIndices[(i * 3) + 1]];
+		v2[1] = vData[tIndices[(i * 3) + 1] + 1];
+		v2[2] = vData[tIndices[(i * 3) + 1] + 2];
+
+		// Vertex 3
+		v3[0] = vData[tIndices[(i * 3) + 2]];
+		v3[1] = vData[tIndices[(i * 3) + 2] + 1];
+		v3[2] = vData[tIndices[(i * 3) + 2] + 2];
+
+		// Vector from v2 to v1
+		v1v2[0] = v1[0] - v2[0];
+		v1v2[1] = v1[1] - v2[1];
+		v1v2[2] = v1[2] - v2[2];
+
+		// Vector from v2 to v3
+		v1v3[0] = v3[0] - v2[0];
+		v1v3[1] = v3[1] - v2[1];
+		v1v3[2] = v3[2] - v2[2];
+
+		normcrossprod(v1v2, v1v3, norm);
+
+		nData[i * 3] = norm[0];
+		nData[(i * 3) + 1] = norm[1];
+		nData[(i * 3) + 2] = norm[2];
+	}
+
+	// Allocate graphics memory for object
+	loaded = getOpenGLRenderer()->allocateGraphicsMemoryForObject(
+		&m_colorModelShaderId,
+		&m_pyramidVertexArrayObject,
+		vData,
+		12,        // Numero de vertices, internamente el codigo multiplica sizeof(float) * numVertices * 3
+		nData,
+		20,
+		vertexUVs,
+		12,
+		tIndices,
+		20,        // Numero de indices, internamente el codigo multiplica sizeof(unsigned short) * numIndicesVert * 3
+		nIndices,
+		20,
+		tIndices,
+		20
+	);
+
+	if (!loaded)
+	{
+		m_numFacesPyramid = 0;
+
+		if (m_pyramidVertexArrayObject > 0)
+		{
+			getOpenGLRenderer()->freeGraphicsMemoryForObject(&m_pyramidVertexArrayObject);
+			m_pyramidVertexArrayObject = 0;
+		}
+	}
+	/**/
 }
 
 /* */

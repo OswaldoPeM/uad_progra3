@@ -141,6 +141,9 @@
     <ClInclude Include="Include\CAppGeometricFigures.h">
       <Filter>Header Files\App</Filter>
     </ClInclude>
+    <ClInclude Include="CAppSphereTest.h">
+      <Filter>Header Files\App</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -201,6 +204,9 @@
       <Filter>Source Files\App</Filter>
     </ClCompile>
     <ClCompile Include="Source\CAppGeometricFigures.cpp">
+      <Filter>Source Files\App</Filter>
+    </ClCompile>
+    <ClCompile Include="CAppSphereTest.cpp">
       <Filter>Source Files\App</Filter>
     </ClCompile>
   </ItemGroup>
