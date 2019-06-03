@@ -87,6 +87,16 @@ void C3DModel::reset()
 		delete[] m_modelTextureFilename;
 		m_modelTextureFilename = nullptr;
 	}
+	for (int i = 0; i < m_materials.size(); i++)
+	{
+		if (m_materials[i].fileName != nullptr)
+		{
+			delete m_materials[i].textureId;
+			delete[] m_materials[i].fileName;
+			m_materials[i].fileName = nullptr;
+		}
+
+	}
 
 	m_numVertices = 0;
 	m_numNormals = 0;

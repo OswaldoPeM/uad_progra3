@@ -156,6 +156,7 @@ void CApp::selectPrevMenuItem()
 bool CApp::loadTexture(const char *filename, unsigned int *newTextureID)
 {
 	TGAFILE tgaFile;
+
 	tgaFile.imageData = nullptr;
 
 	if (filename == nullptr || newTextureID == nullptr || m_OpenGLRenderer == nullptr)

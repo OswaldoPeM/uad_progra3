@@ -251,17 +251,39 @@ void CAppObjLoader::render()
 
 			// Get a matrix that has both the object rotation and translation
 			MathHelper::Matrix4 modelMatrix = MathHelper::ModelMatrix((float)totalDegreesRotatedRadians, m_objectPosition);
-
-			getOpenGLRenderer()->renderObject(
-				m_p3DModel->getShaderProgramId(),
-				m_p3DModel->getGraphicsMemoryObjectId(),
-				m_p3DModel->getTextureObjectId(),
-				m_p3DModel->getNumFaces(),
-				color,
-				&modelMatrix,
-				COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
-				false
-			);
+			if (m_p3DModel->getNumMaterials() > 1)
+			{
+				for (int i = 0; i < m_p3DModel->getNumMaterials(); i++)
+				{
+					for (int j = 0; j < m_p3DModel->getScopeMat(i).size(); j += 2)
+					{
+						getOpenGLRenderer()->renderObjectMultiMat(
+							m_p3DModel->getScopeMat(i)[j],
+							m_p3DModel->getScopeMat(i)[j + 1],
+							m_p3DModel->getShaderProgramId(),
+							m_p3DModel->getGraphicsMemoryObjectId(),
+							m_p3DModel->getTextureObjId(i),
+							m_p3DModel->getNumFaces(),
+							color,
+							&modelMatrix,
+							COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
+							false
+						);
+					}
+				}
+			}
+			else {
+				getOpenGLRenderer()->renderObject(
+					m_p3DModel->getShaderProgramId(),
+					m_p3DModel->getGraphicsMemoryObjectId(),
+					m_p3DModel->getTextureObjectId(),
+					m_p3DModel->getNumFaces(),
+					color,
+					&modelMatrix,
+					COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
+					false
+				);
+			}
 		}
 	}
 }
@@ -305,14 +327,18 @@ bool CAppObjLoader::load3DModel(const char * const filename)
 			unsigned int newTextureID = 0;
 
 			// LOAD TEXTURE AND ALSO CREATE TEXTURE OBJECT
-			if (loadTexture(m_p3DModel->getTextureFilename(), &newTextureID))
+			for (int i = 0; i < m_p3DModel->getNumMaterials(); i++)
 			{
-				m_p3DModel->setTextureObjectId(newTextureID);
+				if (loadTexture(m_p3DModel->getTextureFilename(i), &newTextureID))
+				{
+					m_p3DModel->setTextureIdMat(i, newTextureID);
+				}
+				else
+				{
+					return false;
+				}
 			}
-			else
-			{
-				return false;
-			}
+			m_p3DModel->setTextureObjectId(*m_p3DModel->getTextureObjId(1));
 		}
 
 		// TO-DO (IMPROVMENT): LOAD ALL POSSIBLE SHADERS FOR 3D OBJECT UP FRONT AND THEN JUST SWITCH THE ACTIVE ONE

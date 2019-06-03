@@ -194,6 +194,19 @@ public:
 		MathHelper::Matrix4 *objectTransformation = NULL,
 		EPRIMITIVE_MODE mode = TRIANGLES,
 		bool drawIndexedPrimitives = false);
+	//
+	bool renderObjectMultiMat(
+		int scopeF,
+		int scopeL,
+		unsigned int *shaderProgramId,
+		unsigned int *vertexArrayObjectId,
+		unsigned int *textureObjMatId,
+		int numFaces,
+		GLfloat *objectColor,
+		MathHelper::Matrix4 *objectTransformation = NULL,
+		EPRIMITIVE_MODE mode = TRIANGLES,
+		bool drawIndexedPrimitives = false
+		);
 
 	//
 	bool renderMenuItem(

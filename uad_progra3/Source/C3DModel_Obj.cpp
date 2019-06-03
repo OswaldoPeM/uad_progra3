@@ -105,6 +105,7 @@ bool C3DModel_Obj::loadFromFile(const char * const filename)
 		m_vertexIndices = new unsigned short[m_numFaces * 3];
 		m_normalIndices = new unsigned short[m_numFaces * 3];
 		m_UVindices = new unsigned short[m_numFaces * 3];
+		m_materials[m_actualMaterial].scope.push_back(m_numFaces);
 
 		// Zero-out indices arrays
 		memset(m_vertexIndices, 0, sizeof(unsigned short) * m_numFaces * 3);
@@ -180,6 +181,8 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 	bool readingUV = false;
 	bool readingFace = false;
 	bool readingTexture = false;
+	bool readingUseMlt = false;
+	bool isQuad = false;
 
 	char *nextToken = NULL;
 	char *token = NULL;
@@ -258,6 +261,40 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 			{
 				readingTexture = true;
 			}
+			// Material
+			else if (0 == strcmp(token, "usemtl")) {
+				readingUseMlt = true;
+				if (countOnly)
+				{
+					std::string nextStrToken(nextToken);
+					// asign the scope for each material
+					for (int i = 0; i <= m_materials.size(); i++)
+					{
+						if (i == m_materials.size())
+						{
+							Material mat;
+							if (m_materials.size() > 0) 
+							{
+								m_materials[m_actualMaterial].scope.push_back(m_numFaces); 
+							}
+							mat.name.append(nextStrToken);
+							mat.scope.push_back(m_numFaces);
+							m_materials.push_back(mat);
+							m_actualMaterial = i;
+							/*if (i > 0) { m_materials[i].scope[0] += 1; }*/
+							break;
+						}
+						else if (m_materials[i].name == nextStrToken)
+						{
+							if (m_actualMaterial == i)break;
+							m_materials[m_actualMaterial].scope.push_back(m_numFaces);
+							m_materials[i].scope.push_back(m_numFaces);
+							m_actualMaterial = i;
+							break;
+						}
+					}
+				}
+			}
 			else
 			{
 				// Unrecognized line
@@ -293,7 +330,7 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 			if (!countOnly)
 			{
 				// Verify we have the expected number of tokens
-				if (currentToken != numExpectedTokens && !readingTexture)
+				if (currentToken != numExpectedTokens && !readingTexture && !readingUseMlt)
 				{
 					cout << "Ignoring line, number of tokens doesn't match the expected." << endl;
 					cout << line.c_str() << endl;
@@ -437,7 +474,11 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 							parsed = false;
 						}
 					}
-
+					//reading MLT
+					else if (readingUseMlt)
+					{
+						parsed = true;
+					}
 				} // reading
 			} // !count only
 		} // No more tokens
@@ -469,11 +510,10 @@ bool C3DModel_Obj::readMtllib(std::string mtlLibFilename, std::string &materialN
 	while (!infile.eof())
 	{
 		getline(infile, lineBuffer);
-
+		
 		readingMaterialName = false;
 		readingMaterialFilename = false;
 		numToken = 0;
-
 		token = strtok_s((char *)lineBuffer.c_str(), delimiterToken, &nextToken);
 		++numToken;
 
@@ -495,11 +535,18 @@ bool C3DModel_Obj::readMtllib(std::string mtlLibFilename, std::string &materialN
 			{
 				if (readingMaterialName)
 				{
-					materialName.append(token);
+					for (int i = 0; i < m_materials.size(); i++)
+					{
+						if (m_materials[i].name == token)m_actualMaterial = i;
+					}
 				}
 				else if (readingMaterialFilename)
 				{
 					materialFilename.append(token);
+					m_materials[m_actualMaterial].fileName = new char[materialFilename.size() + 1];
+					memset(m_materials[m_actualMaterial].fileName, 0, materialFilename.size() + 1);
+					memcpy(m_materials[m_actualMaterial].fileName, materialFilename.c_str(), materialFilename.size());
+					materialFilename.clear();
 					readTextureName = true;
 					break;
 				}
@@ -512,11 +559,19 @@ bool C3DModel_Obj::readMtllib(std::string mtlLibFilename, std::string &materialN
 		// For now, only read the first material
 		if (readTextureName)
 		{
-			break;
+			//break;
 		}
 	}
-
+	materialName.append(m_materials[0].name);
+	materialFilename.append(m_materials[0].fileName);
+	m_numMaterials = m_materials.size();
 	infile.close();
-
-	return readTextureName;
+	if (m_materials.size()<1)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }

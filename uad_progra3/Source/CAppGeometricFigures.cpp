@@ -7,6 +7,8 @@ using namespace std;
 #include "../Include/Globals.h"
 #include "../Include/CAppGeometricFigures.h"
 #include "../Include/CWideStringHelper.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 /* */
 CAppGeometricFigures::CAppGeometricFigures() :
@@ -138,7 +140,8 @@ void CAppGeometricFigures::initialize()
 
 	m_initialized = true;
 	//createPyramidGeometry();
-	createIcosaedroGeometry();
+	//createIcosaedroGeometry();
+	createSphere();
 }
 
 /* */
@@ -638,6 +641,175 @@ void CAppGeometricFigures::createIcosaedroGeometry()
 		}
 	}
 	/**/
+}
+
+void CAppGeometricFigures::createSphere()
+{
+	float radio = 1.0f;
+	bool loaded = false;
+	const int stack = 10;
+	const int sector = 10;
+
+
+	int ind1 = 3, ind2 = 0, ind3;
+	float v1[3], v2[3], v3[3], v1v2[3], v1v3[3], norm[3],x,y,z,xy;
+	float vData[(stack*sector*3) + 6];
+	double stepSec = 2 * M_PI / sector;
+	double stepSk = M_PI / stack;
+	vData[0] = 0;
+	vData[1] = 0;
+	vData[2] = radio;
+	for (int i = 1; i < stack; i++)
+	{
+		double latitud = M_PI / 2 - i * stepSk;
+		xy = radio * cosf(latitud);
+		z = radio * sinf(latitud);
+		for (int j = 0;j<=sector;j++)
+		{
+			double longitud = stepSec * j;
+			x = xy * cosf(longitud);
+			y = xy * sinf(longitud);
+			vData[ind1++] = x;
+			vData[ind1++] = y;
+			vData[ind1++] = z;
+		}
+	}
+	vData[(stack*sector * 3) + 3] = 0;
+	vData[(stack*sector * 3) + 4] = 0;
+	vData[(stack*sector * 3) + 5] = -radio;
+
+	float vertexUVs[(((1 + stack)*sector) * 2) * 2];
+	for (size_t i = 0; i < (((1 + stack)*sector) * 2)*2; i++)
+	{
+		vertexUVs[i] = 0.5f;
+		vertexUVs[i++] = 0.11f;
+	}
+
+	m_numFacesPyramid = (((1 + stack)*sector) * 2);
+	unsigned short tIndices[(((1 + stack)*sector) * 2) * 3];
+	ind1 = 0;
+	ind2 = 1;
+	for (int i = 0; i < sector*3;i++)
+	{
+		tIndices[i] = 0;
+
+		tIndices[++i] = ind2;
+
+		tIndices[++i] = ++ind2;
+	}
+	ind3 = (sector * 3);
+
+	for (int i = 1; i < stack+1; i++)
+	{
+		ind1 = i * (sector + 1);
+		ind2 = ind1 + sector + 1;
+		for (int j = 0; j < sector; j++,ind3++,ind1++,ind2++)
+		{
+			/*tIndices[ind3] = ind1;
+			tIndices[++ind3] = ind2;
+			tIndices[++ind3] = ind1 + 1;
+			tIndices[++ind3] = ind1 + 1;
+			tIndices[++ind3] = ind2;
+			tIndices[++ind3] = ind2 + 1;*/
+			tIndices[ind3] = 0;
+			tIndices[++ind3] = 0;
+			tIndices[++ind3] = 0;
+			tIndices[++ind3] = 0;
+			tIndices[++ind3] = 0;
+			tIndices[++ind3] = 0;
+		}
+	}
+	for (int i = 0; i < sector; i++)
+	{
+		/*tIndices[ind3++] = ind2;
+
+		tIndices[ind3++] = 0;
+
+		tIndices[ind3++] = ind2 + 1;*/
+		tIndices[ind3++] = 0;
+
+		tIndices[ind3++] = 0;
+
+		tIndices[ind3++] = 0;
+	}
+
+	float nData[(((1 + stack)*sector) * 2) * 3];
+	for (int i = 0; i < (((1 + stack)*sector) * 2) * 3; i++)
+	{
+		nData[i] = 0.0f;
+	}
+
+	ind1 = 0;
+	unsigned short nIndices[(((1 + stack)*sector) * 2) * 3];
+	for (int i = 0; i < (((1 + stack)*sector) * 2); i++,ind1++)
+	{
+		nIndices[ind1] = i;
+		nIndices[++ind1] = i;
+		nIndices[++ind1] = i;
+	}
+
+	for (int i = 0; i < m_numFacesPyramid; i++)
+	{
+		// Vertex 1
+		v1[0] = vData[tIndices[i * 3]];
+		v1[1] = vData[tIndices[i * 3] + 1];
+		v1[2] = vData[tIndices[i * 3] + 2];
+
+		// Vertex 2
+		v2[0] = vData[tIndices[(i * 3) + 1]];
+		v2[1] = vData[tIndices[(i * 3) + 1] + 1];
+		v2[2] = vData[tIndices[(i * 3) + 1] + 2];
+
+		// Vertex 3
+		v3[0] = vData[tIndices[(i * 3) + 2]];
+		v3[1] = vData[tIndices[(i * 3) + 2] + 1];
+		v3[2] = vData[tIndices[(i * 3) + 2] + 2];
+
+		// Vector from v2 to v1
+		v1v2[0] = v1[0] - v2[0];
+		v1v2[1] = v1[1] - v2[1];
+		v1v2[2] = v1[2] - v2[2];
+
+		// Vector from v2 to v3
+		v1v3[0] = v3[0] - v2[0];
+		v1v3[1] = v3[1] - v2[1];
+		v1v3[2] = v3[2] - v2[2];
+
+		normcrossprod(v1v2, v1v3, norm);
+
+		nData[i * 3] = norm[0];
+		nData[(i * 3) + 1] = norm[1];
+		nData[(i * 3) + 2] = norm[2];
+	}
+
+	// Allocate graphics memory for object
+	loaded = getOpenGLRenderer()->allocateGraphicsMemoryForObject(
+		&m_colorModelShaderId,
+		&m_pyramidVertexArrayObject,
+		vData,
+		(sector*stack)+2,        // Numero de vertices, internamente el codigo multiplica sizeof(float) * numVertices * 3
+		nData,
+		(((1 + stack)*sector) * 2),
+		vertexUVs,
+		(sector*stack) + 2,
+		tIndices,
+		(((1 + stack)*sector) * 2),        // Numero de indices, internamente el codigo multiplica sizeof(unsigned short) * numIndicesVert * 3
+		nIndices,
+		(((1 + stack)*sector) * 2),
+		tIndices,
+		(((1 + stack)*sector) * 2)
+	);
+
+	if (!loaded)
+	{
+		m_numFacesPyramid = 0;
+
+		if (m_pyramidVertexArrayObject > 0)
+		{
+			getOpenGLRenderer()->freeGraphicsMemoryForObject(&m_pyramidVertexArrayObject);
+			m_pyramidVertexArrayObject = 0;
+		}
+	}
 }
 
 /* */
