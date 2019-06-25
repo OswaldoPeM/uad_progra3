@@ -26,6 +26,7 @@ private:
 protected:
 	void reset();														// Cleanup any allocated memory
 	bool loadFromFile(const char * const filename);
+	void checkFnMlt();
 
 public:
 	C3DModel_Obj();

@@ -7,10 +7,11 @@
 using namespace std;
 struct Material
 {
-	string name = "";
-	char *fileName;
+	string name = "",whom="",format="";
+	char *fileName=nullptr;
 	unsigned int *textureId=new unsigned int();
 	vector<int> scope;
+	
 };
 // ========================================================================================================================================
 // Class that represents a 3D Model

@@ -27,9 +27,9 @@ namespace MathHelper
 	inline static Matrix4 IdentityMatrix()
 	{
 		return Matrix4(1.0f, 0.0f, 0.0f, 0.0f,
-            		   0.0f, 1.0f, 0.0f, 0.0f,
-			           0.0f, 0.0f, 1.0f, 0.0f,
-			           0.0f, 0.0f, 0.0f, 1.0f);
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	// Rotate around Y
@@ -37,13 +37,15 @@ namespace MathHelper
 	{
 		float cosine = cosf(angleInRadians);
 		float sine = sinf(angleInRadians);
-		
-		return Matrix4(cosine, 0.0f, -sine,  0.0f,
-			           0.0f,   1.0f, 0.0f,   0.0f,
-			           sine,   0.0f, cosine, 0.0f,
-			           0.0f,   0.0f, 0.0f,   1.0f);
-	}
 
+		return Matrix4(cosine, 0.0f, -sine, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			sine, 0.0f, cosine, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f);
+	}
+	inline static Matrix4 MatrixMult(Matrix4 r1, Matrix4 p) {
+		 
+	}
 	// Rotate around Y + Translate
 	inline static Matrix4 ModelMatrix(float angleInRadians, CVector3 translation)
 	{

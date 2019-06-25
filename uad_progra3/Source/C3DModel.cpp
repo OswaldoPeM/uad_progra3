@@ -89,13 +89,16 @@ void C3DModel::reset()
 	}
 	for (int i = 0; i < m_materials.size(); i++)
 	{
-		if (m_materials[i].fileName != nullptr)
+		if (m_materials[i].fileName != NULL)
 		{
-			delete m_materials[i].textureId;
 			delete[] m_materials[i].fileName;
 			m_materials[i].fileName = nullptr;
 		}
-
+		if (m_materials[i].textureId != nullptr)
+		{
+			delete m_materials[i].textureId;
+			m_materials[i].textureId = nullptr;
+		}
 	}
 
 	m_numVertices = 0;

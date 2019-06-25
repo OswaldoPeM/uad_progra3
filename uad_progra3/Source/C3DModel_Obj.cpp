@@ -117,6 +117,7 @@ bool C3DModel_Obj::loadFromFile(const char * const filename)
 
 		// Second pass is to read the data
 		readFileOk = readObjFile(filename, false);
+		//checkFnMlt();
 
 		if (readFileOk)
 		{
@@ -134,6 +135,22 @@ bool C3DModel_Obj::loadFromFile(const char * const filename)
 	}
 
 	return readFileOk;
+}
+
+void C3DModel_Obj::checkFnMlt()
+{
+
+	//for (int i = 0; i < m_materials.size(); i++)
+	//{
+	//	if (m_materials[i].fileName == nullptr) 
+	//	{
+	//		m_materials[i].fileName = new char(4);
+	//		m_materials[i].fileName[0] = { 'N' };
+	//		m_materials[i].fileName[1] = { 'U' };
+	//		m_materials[i].fileName[2] = { 'L' };
+	//		m_materials[i].fileName[3] = { 'L' };
+	//	}
+	//}
 }
 
 /*
@@ -159,7 +176,6 @@ bool C3DModel_Obj::readObjFile(const char * filename, bool countOnly)
 		}
 		// cout << lineBuffer << endl;
 	}
-
 	infile.close();
 
 	return readFileOk;
@@ -195,7 +211,7 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 	int numExpectedTokens = 4;
 
 	std::vector<std::string> tokens;
-
+	vector<string> sectri;
 	std::string materialName;
 	std::string materialFilename;
 
@@ -252,8 +268,13 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 				{
 					// Check if this line is a quad or a triangle
 					std::string nextStrToken(nextToken);
-
-					m_numFaces++;
+					for (int i = 0, j = 0; i < strlen(nextToken)-1; i++)
+					{
+						if (nextToken[i] == ' ')j++;
+						if (j > 2) isQuad = true;
+					}
+					
+					m_numFaces += isQuad ? 2 : 1;
 				}
 			}
 			// Texture
@@ -330,7 +351,13 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 			if (!countOnly)
 			{
 				// Verify we have the expected number of tokens
-				if (currentToken != numExpectedTokens && !readingTexture && !readingUseMlt)
+				if (readingFace && (tokens.size() == 4))isQuad = true;
+				if (readingUV && currentToken == 3)
+				{
+					tokens.push_back("0.0000");
+					currentToken++;
+				}
+				if (currentToken != numExpectedTokens && !readingTexture && !readingUseMlt && !isQuad)
 				{
 					cout << "Ignoring line, number of tokens doesn't match the expected." << endl;
 					cout << line.c_str() << endl;
@@ -397,6 +424,13 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 						// token[0] = 1/3/4
 						// token[1] = 3/5/2
 						// token[2] = 2/3/1
+						// if there are a 4th grup
+						// token[3] = 2/5/3
+						if (isQuad) {
+							sectri = vector<string>(tokens);
+							tokens.pop_back();
+							sectri.erase(sectri.begin() + 1);
+						}
 						for (int i = 0; i < 3 && i < tokens.size(); i++)
 						{
 							currentToken = -1;
@@ -458,6 +492,70 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 						m_currentFace += 3;
 						token = NULL;
 						nextToken = NULL;
+						if (isQuad)
+						{
+							for (int i = 0; i < 3 && i < sectri.size(); i++)
+							{
+								currentToken = -1;
+
+								// Get group of indices and split it into tokens with '/' as delimiter
+								token = strtok_s((char *)sectri[i].c_str(), delimiterFace, &nextToken);
+
+								while (nextToken != NULL && *nextToken != '\0')
+								{
+									currentToken++;
+
+									if (token != NULL)
+									{
+										switch (currentToken)
+										{
+										case 0:
+											// Indices in .obj format start at 1, but our arrays start from index 0
+											m_vertexIndices[m_currentFace + i] = (unsigned short)(atoi(token)) - 1;
+											break;
+										case 1:
+											// Indices in .obj format start at 1, but our arrays start from index 0
+											m_UVindices[m_currentFace + i] = (unsigned short)(atoi(token)) - 1;
+											break;
+										case 2:
+											// Indices in .obj format start at 1, but our arrays start from index 0
+											m_normalIndices[m_currentFace + i] = (unsigned short)(atoi(token)) - 1;
+											break;
+										}
+									}
+
+									token = strtok_s(NULL, delimiterFace, &nextToken);
+
+									// Last token
+									if (token != NULL &&
+										(nextToken == NULL || (nextToken != NULL && *nextToken == '\0'))
+										)
+									{
+										currentToken++;
+
+										switch (currentToken)
+										{
+										case 0:
+											// Indices in .obj format start at 1, but our arrays start from index 0
+											m_vertexIndices[m_currentFace + i] = (unsigned short)(atoi(token)) - 1;
+											break;
+										case 1:
+											// Indices in .obj format start at 1, but our arrays start from index 0
+											m_UVindices[m_currentFace + i] = (unsigned short)(atoi(token)) - 1;
+											break;
+										case 2:
+											// Indices in .obj format start at 1, but our arrays start from index 0
+											m_normalIndices[m_currentFace + i] = (unsigned short)(atoi(token)) - 1;
+											break;
+										}
+									}
+								} // while (nextToken != NULL)
+							} // for
+
+							m_currentFace += 3;
+							token = NULL;
+							nextToken = NULL;
+						}
 					} // reading face
 					else if (readingTexture)
 					{
@@ -510,7 +608,7 @@ bool C3DModel_Obj::readMtllib(std::string mtlLibFilename, std::string &materialN
 	while (!infile.eof())
 	{
 		getline(infile, lineBuffer);
-		
+		bool isFile= false;
 		readingMaterialName = false;
 		readingMaterialFilename = false;
 		numToken = 0;
@@ -542,6 +640,20 @@ bool C3DModel_Obj::readMtllib(std::string mtlLibFilename, std::string &materialN
 				}
 				else if (readingMaterialFilename)
 				{
+					while (true)
+					{
+						for (int i = 0; i < strlen(token); i++)
+						{
+							if (token[i] == '.')
+							{
+								isFile = true;
+								break;
+							}
+						}
+						if (isFile) break;
+						m_materials[m_actualMaterial].whom.append(token);
+						token = strtok_s(nullptr, delimiterToken, &nextToken);
+					}
 					materialFilename.append(token);
 					m_materials[m_actualMaterial].fileName = new char[materialFilename.size() + 1];
 					memset(m_materials[m_actualMaterial].fileName, 0, materialFilename.size() + 1);
@@ -549,6 +661,7 @@ bool C3DModel_Obj::readMtllib(std::string mtlLibFilename, std::string &materialN
 					materialFilename.clear();
 					readTextureName = true;
 					break;
+
 				}
 			}
 

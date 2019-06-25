@@ -140,8 +140,8 @@ void CAppGeometricFigures::initialize()
 
 	m_initialized = true;
 	//createPyramidGeometry();
-	//createIcosaedroGeometry();
-	createSphere();
+	createIcosaedroGeometry();
+	//createSphere();
 }
 
 /* */

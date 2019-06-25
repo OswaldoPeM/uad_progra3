@@ -870,6 +870,7 @@ bool COpenGLRenderer::renderObjectMultiMat(
 	EPRIMITIVE_MODE mode,
 	bool drawIndexedPrimitives)
 {
+	if (*textureObjMatId == 0)return true;
 	if (m_windowWidth > 0
 		&& m_windowHeight > 0
 		&& vertexArrayObjectId != NULL

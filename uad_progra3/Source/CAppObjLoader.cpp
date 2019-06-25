@@ -257,6 +257,7 @@ void CAppObjLoader::render()
 				{
 					for (int j = 0; j < m_p3DModel->getScopeMat(i).size(); j += 2)
 					{
+						if (m_p3DModel->getTextureObjId(i) == 0)continue;
 						getOpenGLRenderer()->renderObjectMultiMat(
 							m_p3DModel->getScopeMat(i)[j],
 							m_p3DModel->getScopeMat(i)[j + 1],
@@ -329,6 +330,10 @@ bool CAppObjLoader::load3DModel(const char * const filename)
 			// LOAD TEXTURE AND ALSO CREATE TEXTURE OBJECT
 			for (int i = 0; i < m_p3DModel->getNumMaterials(); i++)
 			{
+				if (m_p3DModel->getTextureFilename(i) == nullptr) {
+					m_p3DModel->setTextureIdMat(i, 0);
+					continue;
+				}
 				if (loadTexture(m_p3DModel->getTextureFilename(i), &newTextureID))
 				{
 					m_p3DModel->setTextureIdMat(i, newTextureID);
@@ -338,7 +343,7 @@ bool CAppObjLoader::load3DModel(const char * const filename)
 					return false;
 				}
 			}
-			m_p3DModel->setTextureObjectId(*m_p3DModel->getTextureObjId(1));
+			m_p3DModel->setTextureObjectId(*m_p3DModel->getTextureObjId(0));
 		}
 
 		// TO-DO (IMPROVMENT): LOAD ALL POSSIBLE SHADERS FOR 3D OBJECT UP FRONT AND THEN JUST SWITCH THE ACTIVE ONE
@@ -449,11 +454,11 @@ void CAppObjLoader::onF3(int mods)
 	// Check BITWISE AND to detect shift/alt/ctrl
 	if (mods & KEY_MOD_SHIFT)
 	{
-		moveCamera(-1.0f);
+		moveCamera(-10);
 	}
 	else
 	{
-		moveCamera(1.0f);
+		moveCamera(10);
 	}
 }
 
