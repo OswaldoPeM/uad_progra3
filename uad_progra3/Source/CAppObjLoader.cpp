@@ -257,7 +257,8 @@ void CAppObjLoader::render()
 				{
 					for (int j = 0; j < m_p3DModel->getScopeMat(i).size(); j += 2)
 					{
-						if (m_p3DModel->getTextureObjId(i) == 0)continue;
+
+						if (*m_p3DModel->getTextureObjId(i) == 0)continue;//
 						getOpenGLRenderer()->renderObjectMultiMat(
 							m_p3DModel->getScopeMat(i)[j],
 							m_p3DModel->getScopeMat(i)[j + 1],
