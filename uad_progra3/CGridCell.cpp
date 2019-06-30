@@ -6,7 +6,7 @@ CGridCell::CGridCell()
 {
 }
 
-CGridCell::CGridCell(int objIndex,float size)
+CGridCell::CGridCell(int objIndex,float size,bool flat)
 {
 	m_ObjInstanceIndex = objIndex;
 	m_vertex[6].X = 0;

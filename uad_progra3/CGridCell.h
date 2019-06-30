@@ -8,9 +8,12 @@ class CGridCell
 
 public:
 	CGridCell();
-	CGridCell(int objIndex,float size);
+	CGridCell(int objIndex,float size,bool flat);
 	CGridCell(CVector3 firstCell, int ObjIndex, int X, int Y,float size, bool flat);
 	~CGridCell();
+
+	int getObjInstance() { return m_ObjInstanceIndex; }
+
 
 };
 
