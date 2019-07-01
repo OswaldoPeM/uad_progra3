@@ -17,6 +17,15 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 
 	//create a bidimiensional array of CGridCells
 	//m_grid = new CGridCell[cols][rows];
+
+	float x, y,sizeSide,sizeHight;
+	//if flat, x cosf(30) y sinf(30).
+	x = (!flat) ? cosf(60)*size : cosf(30)*size;
+	y = (!flat) ? sinf(60)*size : sinf(30)*size;
+	//space between hex center.
+	sizeSide = size * x * 2;
+	sizeHight = size * y * 2;
+
 	for (int i = 0; i < rows; i++)
 	{
 		m_grid[i] = new CGridCell[rows];
