@@ -13,12 +13,17 @@ CGrid::~CGrid()
 
 void CGrid::initialize(int cols, int  rows, float size, bool flat)
 {
-	// // // // // NOTE: CHECK IF THIS IS OK
+	m_row = rows;
+	m_col = cols;
 
 	//create a bidimiensional array of CGridCells
-	//m_grid = new CGridCell[cols][rows];
-
 	float x, y,sizeSide,sizeHight;
+	*m_grid = new CGridCell[cols];
+	for (int i = 0; i < rows; i++)
+	{
+		m_grid[i] = new CGridCell[rows];
+	}
+
 	//if flat, x cosf(30) y sinf(30).
 	x = (!flat) ? cosf(60)*size : cosf(30)*size;
 	y = (!flat) ? sinf(60)*size : sinf(30)*size;
@@ -26,10 +31,7 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	sizeSide = size * x * 2;
 	sizeHight = size * y * 2;
 
-	for (int i = 0; i < rows; i++)
-	{
-		m_grid[i] = new CGridCell[rows];
-	}
+
 	for (int i = 0; i < cols; i++)
 	{
 		for (int j = 0; j < rows; j++)

@@ -22,6 +22,14 @@ CGridCell::CGridCell(int objIndex,float size,bool flat)
 
 CGridCell::CGridCell(CVector3 firstCell, int ObjIndex, float X, float Y, float size, bool flat)
 {
+	m_ObjInstanceIndex = ObjIndex;
+	for (int i = 0; i < 7; i++)
+	{
+		m_vertex[i].X = firstCell.getX() + X;
+		m_vertex[i].Y = 0;
+		m_vertex[i].Z = firstCell.getZ() + Y;
+
+	}
 }
 
 

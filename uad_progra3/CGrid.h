@@ -5,6 +5,7 @@
 
 class CGrid
 {
+	int  m_col, m_row;
 	CGridCell **m_grid;
 public:
 	CGrid();
