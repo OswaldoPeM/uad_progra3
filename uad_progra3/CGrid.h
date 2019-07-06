@@ -17,12 +17,12 @@ class CGrid
 	void setVertexUVsSize();
 	void addVData(int &index, CVector3 *vertex);
 	void addVertexUVs();
-	void addTInices(int i,int j);
+	void addTInices(int i, int j, int &index);
 
 public:
 	CGrid();
 	~CGrid();
-	void initialize(int cols, int  rows, float size,bool flat);
+	void initialize(int cols, int  rows, float size, bool flat);
 	CVector3 getPos(int x, int y);
 };
 

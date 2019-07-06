@@ -63,7 +63,7 @@ void CGrid::addVData(int &index, CVector3 *vertex)
 
 void CGrid::addVertexUVs()
 {
-	int length=m_col*m_row*6;
+	int length = m_col * m_row * 6;
 	for (int i = 0; i < length; i++)
 	{
 		vertexUVs[i++] = 0.5f;
@@ -71,9 +71,23 @@ void CGrid::addVertexUVs()
 	}
 }
 
-void CGrid::addTInices(int i, int j)
+void CGrid::addTInices(int i, int j, int &index)
 {
-	tIndices[i * 6 + (j * i * 6) + 0];
+	tIndices[index++] = (m_col * 6 * i) + (j * 6);
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 1;
+
+	tIndices[index++] = (m_col * 6 * i) + (j * 6);
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
+
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 3;
+
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 4;
 }
 
 CGrid::CGrid()
@@ -89,7 +103,7 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 {
 	clearGrid();
 	//Setters
-	int vDataIndx=0;
+	int vDataIndx = 0, tIndIndex = 0;
 	m_row = rows;
 	m_col = cols;
 	setVDataSize();
@@ -98,7 +112,7 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	setTIndicesSize();
 
 	//create a bidimiensional array of CGridCells
-	float x, y,sizeSide,sizeHight;
+	float x, y, sizeSide, sizeHight;
 	m_grid = new CGridCell*[m_row];
 	for (int i = 0; i < m_row; i++)
 	{
@@ -107,8 +121,8 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 
 	//if flat, x cosf(30) y sinf(30).
 	//space between hex center and 
-	x = (!flat) ? sinf(60)*size*2 : cosf(90)*size*2;
-	y = (!flat) ? cosf(0)*size*2 : cosf(30)*size*2;
+	x = (!flat) ? sinf(60)*size * 2 : cosf(90)*size * 2;
+	y = (!flat) ? cosf(0)*size * 2 : cosf(30)*size * 2;
 
 
 	for (int i = 0; i < m_row; i++)
@@ -117,8 +131,9 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 		{
 			if (i == 0)if (j == 0)m_grid[i][j] = CGridCell(-1, size, flat);
 			m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), -1, x, y, size, flat, i, j);
-			
+
 			addVData(vDataIndx, m_grid[i][j].getVecVerx());
+			addTInices(i, j, tIndIndex);
 		}
 	}
 	addVertexUVs();
