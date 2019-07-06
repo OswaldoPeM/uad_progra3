@@ -188,3 +188,8 @@ void CAppGrid::onMouseMove(float deltaX, float deltaY)
 		//m_objectPosition.setValues(currPos);
 	}
 }
+
+void CAppGrid::onF2(int mods)
+{
+
+}

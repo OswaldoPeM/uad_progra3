@@ -4,8 +4,10 @@
 #include"Include/Globals.h"
 #include "Include/CApp.h"
 #include"Include/CWideStringHelper.h"
+#include"CWorld.h"
 class CAppGrid : public CApp
 {
+	CWorld *mundo;
 protected:
 	bool initializeMenu();
 public:
@@ -24,6 +26,8 @@ public:
 	//Called when mouse moves within the window
 	void onMouseMove(float deltaX, float deltaY);
 
+
+	void onF2(int mods);
 };
 
-#endif
+#endif  //!CAPPGRID_H

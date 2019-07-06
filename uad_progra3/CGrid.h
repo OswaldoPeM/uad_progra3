@@ -5,16 +5,23 @@
 
 class CGrid
 {
-	int  m_col, m_row, m_numFacesGrid;
 	CGridCell **m_grid;
-	float *vData;
-	float *vertexUVs;
-	int *tIndices;
+	int  m_col, m_row, m_numFacesGrid;
 
-	void clearGrid();
-	void setTIndicesSize();
+	float *vData;
+	float *nData;
+	float *vertexUVs;
+
+	int *tIndices,nIndices;
+	
+
+	void reset();
+	
 	void setVDataSize();
 	void setVertexUVsSize();
+	void setTIndicesSize();
+	void setNDataSize();
+
 	void addVData(int &index, CVector3 *vertex);
 	void addVertexUVs();
 	void addTInices(int i, int j, int &index);

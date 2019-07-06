@@ -2,7 +2,7 @@
 
 
 
-void CGrid::clearGrid()
+void CGrid::reset()
 {
 	m_row = 0;
 	m_col = 0;
@@ -26,6 +26,15 @@ void CGrid::clearGrid()
 void CGrid::setTIndicesSize()
 {
 	tIndices = new int[m_numFacesGrid * 3];
+}
+
+void CGrid::setNDataSize()
+{
+	nData = new float[m_numFacesGrid * 3];
+	for (int i = 0; i < m_numFacesGrid * 3; i++)
+	{
+		nData[i] = 0.0f;
+	}
 }
 
 void CGrid::setVDataSize()
@@ -101,7 +110,7 @@ CGrid::~CGrid()
 
 void CGrid::initialize(int cols, int  rows, float size, bool flat)
 {
-	clearGrid();
+	reset();
 	//Setters
 	int vDataIndx = 0, tIndIndex = 0;
 	m_row = rows;
