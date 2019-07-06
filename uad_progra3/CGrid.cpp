@@ -4,12 +4,32 @@
 
 void CGrid::clearGrid()
 {
+	m_row = 0;
+	m_col = 0;
 	if (m_grid != nullptr) {
 		for (int i = 0; i < m_col; i++)
 		{
 			delete[] m_grid[i];
 		}
 		m_grid = nullptr;
+	}
+	if (vData != nullptr) {
+		delete[] vData;
+		vData = nullptr;
+	}
+}
+
+void CGrid::setVData()
+{
+	int i1,i2;
+	vData = new float[m_col*m_row * 3 * 6];
+	for (int i = 0; i < m_col; i++)
+	{
+			i1 = i * 3;
+		for (int j = 0; j < m_row; j++)
+		{
+			
+		}
 	}
 }
 

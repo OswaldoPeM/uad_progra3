@@ -4,11 +4,11 @@
 
 void CGridCell::getVertex(float * buf)
 {
-	for (int i = 0; i < 18;)
+	for (int i = 0; i < 18; i = i)
 	{
-	buf[i++] = m_vertex->getX();
-	buf[i++] = m_vertex->getY();
-	buf[i++] = m_vertex->getZ(); 
+		buf[i++] = m_vertex->getX();
+		buf[i++] = m_vertex->getY();
+		buf[i++] = m_vertex->getZ();
 	}
 }
 
@@ -66,6 +66,11 @@ CGridCell::~CGridCell()
 }
 
 
+
+int CGridCell::getObjInstance()
+{
+	return m_ObjInstanceIndex;
+}
 
 void CGridCell::setObjIns(int objIns)
 {

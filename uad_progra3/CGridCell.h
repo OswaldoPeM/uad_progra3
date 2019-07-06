@@ -1,6 +1,7 @@
-#pragma once
 #include"Include/CVector3.h"
 #include<math.h>
+#pragma once
+
 class CGridCell
 {
 	int m_ObjInstanceIndex = -1;
@@ -13,9 +14,9 @@ public:
 	CGridCell(CVector3 *firstCell, int ObjIndex, float X, float Y, float size, bool flat, int i, int j);
 	~CGridCell();
 
-	int getObjInstance() { return m_ObjInstanceIndex; }
 	void setObjIns(int objIns);
 
 	CVector3 *getVecVerx();
 	CVector3 getPos();
-}
+	int getObjInstance();
+};
