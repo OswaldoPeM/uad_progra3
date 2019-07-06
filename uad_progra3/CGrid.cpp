@@ -17,20 +17,63 @@ void CGrid::clearGrid()
 		delete[] vData;
 		vData = nullptr;
 	}
+	if (vertexUVs != nullptr) {
+		delete[] vertexUVs;
+		vertexUVs = nullptr;
+	}
 }
 
-void CGrid::setVData()
+void CGrid::setTIndicesSize()
 {
-	int i1,i2;
+	tIndices = new int[m_numFacesGrid * 3];
+}
+
+void CGrid::setVDataSize()
+{
 	vData = new float[m_col*m_row * 3 * 6];
-	for (int i = 0; i < m_col; i++)
+}
+
+void CGrid::setVertexUVsSize()
+{
+	vertexUVs = new float[m_col*m_row * 6];
+}
+
+void CGrid::addVData(int &index, CVector3 *vertex)
+{
+	vData[index++] = vertex[0].getX();
+	vData[index++] = vertex[0].getY();
+	vData[index++] = vertex[0].getZ();
+	vData[index++] = vertex[1].getX();
+	vData[index++] = vertex[1].getY();
+	vData[index++] = vertex[1].getZ();
+	vData[index++] = vertex[2].getX();
+	vData[index++] = vertex[2].getY();
+	vData[index++] = vertex[2].getZ();
+	vData[index++] = vertex[3].getX();
+	vData[index++] = vertex[3].getY();
+	vData[index++] = vertex[3].getZ();
+	vData[index++] = vertex[4].getX();
+	vData[index++] = vertex[4].getY();
+	vData[index++] = vertex[4].getZ();
+	vData[index++] = vertex[5].getX();
+	vData[index++] = vertex[5].getY();
+	vData[index++] = vertex[5].getZ();
+
+}
+
+void CGrid::addVertexUVs()
+{
+	int length=m_col*m_row*6;
+	for (int i = 0; i < length; i++)
 	{
-			i1 = i * 3;
-		for (int j = 0; j < m_row; j++)
-		{
-			
-		}
+		vertexUVs[i++] = 0.5f;
+		vertexUVs[i] = .90f;
 	}
+}
+
+void CGrid::addTInices(int i, int j)
+{
+	tIndices[i * 6 + (j * i * 6) + 0];
 }
 
 CGrid::CGrid()
@@ -45,16 +88,21 @@ CGrid::~CGrid()
 void CGrid::initialize(int cols, int  rows, float size, bool flat)
 {
 	clearGrid();
-
+	//Setters
+	int vDataIndx=0;
 	m_row = rows;
 	m_col = cols;
+	setVDataSize();
+	setVertexUVsSize();
+	m_numFacesGrid = m_col * m_row * 4;
+	setTIndicesSize();
 
 	//create a bidimiensional array of CGridCells
 	float x, y,sizeSide,sizeHight;
-	m_grid = new CGridCell*[cols];
-	for (int i = 0; i < cols; i++)
+	m_grid = new CGridCell*[m_row];
+	for (int i = 0; i < m_row; i++)
 	{
-		m_grid[i] = new CGridCell[rows];
+		m_grid[i] = new CGridCell[m_col];
 	}
 
 	//if flat, x cosf(30) y sinf(30).
@@ -63,15 +111,17 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	y = (!flat) ? cosf(0)*size*2 : cosf(30)*size*2;
 
 
-	for (int i = 0; i < cols; i++)
+	for (int i = 0; i < m_row; i++)
 	{
-		for (int j = 0; j < rows; j++)
+		for (int j = 0; j < m_col; j++)
 		{
 			if (i == 0)if (j == 0)m_grid[i][j] = CGridCell(-1, size, flat);
 			m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), -1, x, y, size, flat, i, j);
-
+			
+			addVData(vDataIndx, m_grid[i][j].getVecVerx());
 		}
 	}
+	addVertexUVs();
 }
 
 CVector3 CGrid::getPos(int x, int y)

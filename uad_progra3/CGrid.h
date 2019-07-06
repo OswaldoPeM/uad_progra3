@@ -5,13 +5,20 @@
 
 class CGrid
 {
-	int  m_col, m_row;
+	int  m_col, m_row, m_numFacesGrid;
 	CGridCell **m_grid;
 	float *vData;
-
+	float *vertexUVs;
+	int *tIndices;
 
 	void clearGrid();
-	void setVData();
+	void setTIndicesSize();
+	void setVDataSize();
+	void setVertexUVsSize();
+	void addVData(int &index, CVector3 *vertex);
+	void addVertexUVs();
+	void addTInices(int i,int j);
+
 public:
 	CGrid();
 	~CGrid();

@@ -42,20 +42,20 @@ CGridCell::CGridCell(CVector3 *firstCell, int ObjIndex, float X, float Y, float 
 		{
 			m_vertex[i].X = firstCell[i].getX() + (farX * 2 * j) + par;
 			m_vertex[i].Y = 0;
-			m_vertex[i].Z = firstCell[i].getZ() + (awaY  * j);
+			m_vertex[i].Z = firstCell[i].getZ() + (awaY  * i);
 		}
 	}
 	else {
 
 		par = (!(j & 1)) ? firstCell[4].getZ() : 0;
-		farX = firstCell[3].getX();
+		farX = firstCell[3].getX()*1.5;
 		awaY = firstCell[4].getZ();
 
 		for (int i = 0; i < 7; i++)
 		{
-			m_vertex[i].X = firstCell->getX() + X;
+			m_vertex[i].X = firstCell->getX() + (farX * j);
 			m_vertex[i].Y = 0;
-			m_vertex[i].Z = firstCell->getZ() + Y;
+			m_vertex[i].Z = firstCell->getZ() + (awaY * 2 * i) + par;
 		}
 	}
 }
