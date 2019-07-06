@@ -4,7 +4,7 @@
 
 bool CAppGrid::initializeMenu()
 {
-	cout << "CAppCubeTest::initializeMenu()" << endl;
+	cout << "CAppGrid::initializeMenu()" << endl;
 
 	std::wstring wresourceFilenameVS;
 	std::wstring wresourceFilenameFS;
