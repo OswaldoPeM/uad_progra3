@@ -99,6 +99,7 @@ void CGrid::addTInices(int i, int j, int &index)
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 4;
 }
 
+
 CGrid::CGrid()
 {
 }
@@ -138,8 +139,8 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	{
 		for (int j = 0; j < m_col; j++)
 		{
-			if (i == 0)if (j == 0)m_grid[i][j] = CGridCell(-1, size, flat);
-			m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), -1, x, y, size, flat, i, j);
+			if (i == 0)if (j == 0)m_grid[i][j] = CGridCell(nullptr, size, flat);
+			m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, flat, i, j);
 
 			addVData(vDataIndx, m_grid[i][j].getVecVerx());
 			addTInices(i, j, tIndIndex);

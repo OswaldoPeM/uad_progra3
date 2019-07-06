@@ -16,7 +16,7 @@ CGridCell::CGridCell()
 {
 }
 
-CGridCell::CGridCell(int objIndex,float size,bool flat)
+CGridCell::CGridCell(int *objIndex,float size,bool flat)
 {
 	m_ObjInstanceIndex = objIndex;
 	for (int i = 0; i < 6; i++)
@@ -30,32 +30,32 @@ CGridCell::CGridCell(int objIndex,float size,bool flat)
 	m_vertex[6].Z = 0;
 }
 
-CGridCell::CGridCell(CVector3 *firstCell, int ObjIndex, float X, float Y, float size, bool flat,int i,int j)
+CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
 {
 	float farX,awaY,par;
 	m_ObjInstanceIndex = ObjIndex;
 	if (!flat) {
-		par = (!(i & 1)) ? firstCell[1].getX() : 0;
+		par = (!(x & 1)) ? firstCell[1].getX() : 0;
 		farX = firstCell[1].getX();
 		awaY = firstCell[0].getZ()*1.5f;
 		for (int i = 0; i < 7; i++)
 		{
-			m_vertex[i].X = firstCell[i].getX() + (farX * 2 * j) + par;
+			m_vertex[i].X = firstCell[i].getX() + (farX * 2 * y) + par;
 			m_vertex[i].Y = 0;
-			m_vertex[i].Z = firstCell[i].getZ() + (awaY  * i);
+			m_vertex[i].Z = firstCell[i].getZ() + (awaY  * x);
 		}
 	}
 	else {
 
-		par = (!(j & 1)) ? firstCell[4].getZ() : 0;
+		par = (!(y & 1)) ? firstCell[4].getZ() : 0;
 		farX = firstCell[3].getX()*1.5;
 		awaY = firstCell[4].getZ();
 
 		for (int i = 0; i < 7; i++)
 		{
-			m_vertex[i].X = firstCell->getX() + (farX * j);
+			m_vertex[i].X = firstCell->getX() + (farX * y);
 			m_vertex[i].Y = 0;
-			m_vertex[i].Z = firstCell->getZ() + (awaY * 2 * i) + par;
+			m_vertex[i].Z = firstCell->getZ() + (awaY * 2 * x) + par;
 		}
 	}
 }
@@ -75,6 +75,16 @@ int CGridCell::getObjInstance()
 void CGridCell::setObjIns(int objIns)
 {
 	m_ObjInstanceIndex = objIns;
+}
+
+void CGridCell::setTextureID(unsigned int texID)
+{
+	m_textureID = texID;
+}
+
+int * CGridCell::getObjins()
+{
+	return m_ObjInstanceIndex;
 }
 
 CVector3 * CGridCell::getVecVerx()
