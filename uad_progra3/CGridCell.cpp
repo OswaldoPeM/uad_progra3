@@ -19,7 +19,6 @@ CGridCell::CGridCell()
 CGridCell::CGridCell(int *objIndex,float size,bool flat)
 {
 	m_ObjInstanceIndex = objIndex;
-	
 	for (int i = 0; i < 6; i++)
 	{
 		m_vertex[i].X = (flat) ? -sin(((60 * i) - 30)*(3.14159265359/180.0))*size : cosf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;

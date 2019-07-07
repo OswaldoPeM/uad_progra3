@@ -15,8 +15,8 @@ class CGrid:public CApp
 	double m_objectRotatiion;
 	double m_objecrotatiionSpeed;
 
-	unsigned int m_gridShaderPrgmID=0;
-	unsigned int m_gridTextureProgramID=0;
+	unsigned int m_gridShaderPrgmID=1;
+	unsigned int m_gridTextureProgramID=1;
 	unsigned int m_textureID=0;
 	unsigned int m_graphicsMemoriObjectId=0;
 

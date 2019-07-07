@@ -131,15 +131,15 @@ void CGrid::addVertexUVs()
 	for (int i = 0; i < length; i++)
 	{
 		vertexUVs[i++] = 0.5f;
-		vertexUVs[i] = .90f;
+		vertexUVs[i] = .60f;
 	}
 }
 
 void CGrid::addTInices(int i, int j, int &index)
 {
 	tIndices[index++] = (m_col * 6 * i) + (j * 6);
-	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 1;
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 1;
 
 	tIndices[index++] = (m_col * 6 * i) + (j * 6);
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
@@ -150,8 +150,8 @@ void CGrid::addTInices(int i, int j, int &index)
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
 
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 3;
-	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 4;
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 4;
 }
 
 void CGrid::normcrossprod(float v1[3], float v2[3], float out[3])
@@ -476,7 +476,7 @@ void CGrid::run()
 		if (getGameWindow()->create(CAPP_PROGRA3_HEXGRID_WINDOW_TITLE))
 		{
 
-			initialize(10, 10, 1, false);
+			initialize(100, 100, 1, false);
 
 			// Set initial clear screen color
 			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
