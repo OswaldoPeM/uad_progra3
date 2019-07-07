@@ -8,6 +8,7 @@
 #define CAPP_PROGRA3_CUBES_WINDOW_TITLE         "Cubes app"
 #define CAPP_PROGRA3_OBJ_LOADER_WINDOW_TITLE    ".OBJ Loader app"
 #define CAPP_PROGRA3_GEOMETRIC_WINDOW_TITLE     "Geometric shapes app"
+#define CAPP_PROGRA3_HEXGRID_WINDOW_TITLE       "HEXGRID DE OSWUAPO"
 
 // SHADER FILENAMES
 #define VERTEX_SHADER_3D_OBJECT_COLOR           "SHADERS\\glsl_testobject.vert"

@@ -1,4 +1,15 @@
 #include "CGrid.h"
+#include "stdafx.h"
+
+#include <iostream>
+using namespace std;
+
+#include <assert.h>
+#include "Include/Globals.h"
+#include "Include/CAppGeometricFigures.h"
+#include "Include/CWideStringHelper.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 
 
@@ -22,12 +33,39 @@ void CGrid::reset()
 		delete[] vertexUVs;
 		vertexUVs = nullptr;
 	}
+	if (nData != nullptr) {
+		delete[] nData;
+		nData = nullptr;
+	}
+	if (tIndices != nullptr) {
+		delete[] tIndices;
+		tIndices = nullptr;
+	}
+	if (nIndices != nullptr) {
+		delete[] nIndices;
+		nIndices = nullptr;
+	}
+	// Free memory allocated in this class instance here
+	// =================================================
+	//
+	if (m_textureID > 0)
+	{
+		getOpenGLRenderer()->deleteTexture(&m_textureID);
+	}
+
+	if (m_graphicsMemoriObjectId > 0)
+	{
+		getOpenGLRenderer()->freeGraphicsMemoryForObject(&m_graphicsMemoriObjectId);
+	}
+	// =================================================
+
 }
 
 void CGrid::setTIndicesSize()
 {
 	tIndices = new unsigned short[m_numFacesGrid * 3];
 	m_numIndicesVert = m_numFacesGrid;
+	m_numIndicesUVCoords = m_numFacesGrid;
 }
 
 void CGrid::setNDataSize()
@@ -145,6 +183,11 @@ CGrid::CGrid()
 
 CGrid::~CGrid()
 {
+	reset();
+}
+
+void CGrid::initialize()
+{
 }
 
 void CGrid::initialize(int cols, int  rows, float size, bool flat)
@@ -160,6 +203,87 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	m_numFacesGrid = m_col * m_row * 4;
 	setTIndicesSize();
 	setNIndices();
+
+	// Initialize app-specific stuff here
+// ==================================
+//
+	std::wstring wresourceFilenameVS, wresourceFilenameFS, wresourceFilenameTexture;
+	std::string resourceFilenameVS, resourceFilenameFS, resourceFilenameTexture;
+
+	// Color Shader
+	// Load shader file, create OpenGL Shader Object for it
+	// -------------------------------------------------------------------------------------------------------------
+
+	// Check shader for the color-only object exists
+	if (!CWideStringHelper::GetResourceFullPath(VERTEX_SHADER_3D_OBJECT, wresourceFilenameVS, resourceFilenameVS) ||
+		!CWideStringHelper::GetResourceFullPath(FRAGMENT_SHADER_3D_OBJECT, wresourceFilenameFS, resourceFilenameFS))
+	{
+		cout << "ERROR: Unable to find one or more resources: " << endl;
+		cout << "  " << VERTEX_SHADER_3D_OBJECT << endl;
+		cout << "  " << FRAGMENT_SHADER_3D_OBJECT << endl;
+
+		return;
+	}
+
+	if (!getOpenGLRenderer()->createShaderProgram(
+		&m_gridShaderPrgmID,
+		resourceFilenameVS.c_str(),
+		resourceFilenameFS.c_str()))
+	{
+		cout << "ERROR: Unable to load color shader" << endl;
+		return;
+	}
+
+	// Texture Shader
+	// Load shader file, create OpenGL Shader Object for it
+	// -------------------------------------------------------------------------------------------------------------
+
+	// Check shader for the textured object exists
+	wresourceFilenameFS.clear();
+	wresourceFilenameVS.clear();
+	resourceFilenameFS.clear();
+	resourceFilenameVS.clear();
+	if (!CWideStringHelper::GetResourceFullPath(VERTEX_SHADER_TEXTURED_3D_OBJECT, wresourceFilenameVS, resourceFilenameVS) ||
+		!CWideStringHelper::GetResourceFullPath(FRAGMENT_SHADER_TEXTURED_3D_OBJECT, wresourceFilenameFS, resourceFilenameFS))
+	{
+		cout << "ERROR: Unable to find one or more resources: " << endl;
+		cout << "  " << VERTEX_SHADER_TEXTURED_3D_OBJECT << endl;
+		cout << "  " << FRAGMENT_SHADER_TEXTURED_3D_OBJECT << endl;
+
+		return;
+	}
+
+	if (!getOpenGLRenderer()->createShaderProgram(
+		&m_gridTextureProgramID,
+		resourceFilenameVS.c_str(),
+		resourceFilenameFS.c_str()))
+	{
+		cout << "ERROR: Unable to load texture shader" << endl;
+		return;
+	}
+
+	// Texture
+	// Load texture file, create OpenGL Texture Object
+	// -------------------------------------------------------------------------------------------------------------
+
+	// Check texture file exists for the textured cube
+	if (!CWideStringHelper::GetResourceFullPath(MC_LEAVES_TEXTURE, wresourceFilenameTexture, resourceFilenameTexture))
+	{
+		cout << "ERROR: Unable to find one or more resources: " << endl;
+		cout << "  " << MC_LEAVES_TEXTURE << endl;
+		return;
+	}
+
+	// Initialize the texture
+	m_textureID = 0;
+	if (!loadTexture(resourceFilenameTexture.c_str(), &m_textureID))
+	{
+		cout << "ERROR: Unable load texture:" << endl;
+		cout << "  " << MC_LEAVES_TEXTURE << endl;
+		return;
+	}
+
+
 	//create a bidimiensional array of CGridCells
 	m_grid = new CGridCell*[m_row];
 	for (int i = 0; i < m_row; i++)
@@ -213,25 +337,65 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 		nData[(i * 3) + 1] = norm[1];
 		nData[(i * 3) + 2] = norm[2];
 	}
+
+
 	loaded = getOpenGLRenderer()->allocateGraphicsMemoryForObject(
 		&m_gridShaderPrgmID,
 		&m_graphicsMemoriObjectId,
 		vData,
-        m_numVertices,
+		m_numVertices,
 		nData,
 		m_numNormals,
 		vertexUVs,
-		5,
+		m_nummUVCoord,
 		tIndices,
-		6,
+		m_numIndicesVert,
 		nIndices,
-		6,
+		m_numIndicesNormal,
 		tIndices,
-		6
+		m_numIndicesUVCoords
 	);
+
+	if (!loaded) {
+		m_numFacesGrid = 0;
+		if (m_graphicsMemoriObjectId>0)
+		{
+			getOpenGLRenderer()->freeGraphicsMemoryForObject(&m_graphicsMemoriObjectId);
+			m_graphicsMemoriObjectId = 0;
+		}
+	}
 }
 
 CVector3 CGrid::getPos(int x, int y)
 {
 	return m_grid[x][y].getPos();
+}
+
+void CGrid::run()
+{
+	if (canRun())
+	{
+		// Create the Window 
+		if (getGameWindow()->create(CAPP_PROGRA3_HEXGRID_WINDOW_TITLE))
+		{
+
+			initialize();
+
+			// Set initial clear screen color
+			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
+
+			// Initialize window width/height in the renderer
+			getOpenGLRenderer()->setWindowWidth(getGameWindow()->getWidth());
+			getOpenGLRenderer()->setWindowHeight(getGameWindow()->getHeight());
+
+			if (m_initialized)
+			{
+				getOpenGLRenderer()->setWireframePolygonMode();
+
+				// Enter main loop
+				cout << "Entering Main loop" << endl;
+				getGameWindow()->mainLoop(this);
+			}
+		}
+	}
 }

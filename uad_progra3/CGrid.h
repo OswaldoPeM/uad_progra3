@@ -8,11 +8,13 @@
 class CGrid:public CApp
 {
 	CGridCell **m_grid;
-	int  m_col, m_row, m_numFacesGrid;
+	int  m_col, m_row, m_numFacesGrid,m_renderPolygonMode;
 	bool loaded = false;
+	bool m_initialized;
 
-	unsigned int m_gridShaderPrgmID=0;
-	unsigned int m_gridTextureProgramID=0;
+	unsigned int m_gridShaderPrgmID;
+	unsigned int m_gridTextureProgramID;
+	unsigned int m_textureID;
 	unsigned int m_graphicsMemoriObjectId;
 
 	float *vData,*vertexUVs,*nData;
@@ -39,8 +41,9 @@ class CGrid:public CApp
 public:
 	CGrid();
 	~CGrid();
-
+	void initialize();
 	void initialize(int cols, int  rows, float size, bool flat);
 	CVector3 getPos(int x, int y);
+	void run();
 };
 

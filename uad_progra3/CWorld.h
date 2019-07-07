@@ -7,6 +7,9 @@
 class CWorld
 {
 	COpenGLRenderer *openGlRenderer;
+	CGrid *GRID;
+	std::vector<unsigned int> gridShaders;
+
 public:
 	void initialize();
 	void readWorld();
