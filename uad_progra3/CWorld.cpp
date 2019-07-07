@@ -4,6 +4,7 @@
 
 void CWorld::initialize()
 {
+
 }
 
 void CWorld::readWorld()

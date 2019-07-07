@@ -23,7 +23,7 @@ void CGrid::reset()
 			delete[] m_grid[i];
 		}
 		delete[] m_grid;
-		m_grid = nullptr;
+
 	}
 	if (vData != nullptr) {
 		delete[] vData;
@@ -138,20 +138,20 @@ void CGrid::addVertexUVs()
 void CGrid::addTInices(int i, int j, int &index)
 {
 	tIndices[index++] = (m_col * 6 * i) + (j * 6);
-	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 1;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
 
 	tIndices[index++] = (m_col * 6 * i) + (j * 6);
-	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
 
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
-	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 3;
-
-	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 2;
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
+
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 3;
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 4;
+	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 5;
 }
 
 void CGrid::normcrossprod(float v1[3], float v2[3], float out[3])
@@ -178,6 +178,14 @@ void CGrid::normalize(float v[3])
 
 CGrid::CGrid()
 {
+}
+
+CGrid::CGrid(int window_width, int window_height) :
+	CApp(window_width, window_height)
+{
+	vData = nullptr, vertexUVs = nullptr, nData = nullptr,tIndices = nullptr, nIndices = nullptr;
+
+	cout << "Constructor: CAppGrid(int window_width, int window_height)" << endl;
 }
 
 
@@ -303,7 +311,7 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 		}
 	}
 	addVertexUVs();
-
+	setNDataSize();
 	for (int i = 0; i < m_numFacesGrid; i++)
 	{
 		// Vertex 1
@@ -366,9 +374,98 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	}
 }
 
+void CGrid::update(double deltatime)
+{
+}
+
+void CGrid::render()
+{
+	CGameMenu *menu = getMenu();
+
+	// If menu is active, render menu
+	if (menu != NULL
+		&& menu->isInitialized()
+		&& menu->isActive())
+	{
+		//...
+	}
+	else // Otherwise, render app-specific stuff here...
+	{
+		// =================================
+		//
+		// White 
+		// Colors are in the 0..1 range, if you want to use RGB, use (R/255, G/255, G/255)
+		float color[3] = { 1.0f, 1.0f, 1.0f };
+		unsigned int noTexture = 0;
+
+		// convert total degrees rotated to radians;
+		double totalDegreesRotatedRadians = 1* 3.1459 / 180.0;
+
+		// Get a matrix that has both the object rotation and translation
+		MathHelper::Matrix4 modelMatrix = MathHelper::ModelMatrix((float)totalDegreesRotatedRadians, m_objectPosition);
+
+		if (m_graphicsMemoriObjectId > 0 && m_numFacesGrid > 0)
+		{
+			CVector3 pos2 = m_objectPosition;
+			pos2 += CVector3(3.0f, 0.0f, 0.0f);
+			MathHelper::Matrix4 modelMatrix2 = MathHelper::ModelMatrix((float)totalDegreesRotatedRadians, pos2);
+
+			// Render pyramid in the first position, using the color shader
+			getOpenGLRenderer()->renderObject(
+				&m_gridShaderPrgmID,
+				&m_graphicsMemoriObjectId,
+				&noTexture,
+				m_numFacesGrid,
+				color,
+				&modelMatrix,
+				COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
+				false
+			);
+
+			// Render same pyramid (same vertex array object identifier), in a second position, but this time with a texture
+			//getOpenGLRenderer()->renderObject(
+			//	&m_gridShaderPrgmID,
+			//	&m_graphicsMemoriObjectId,
+			//	&m_textureID,
+			//	m_numFacesGrid,
+			//	color,
+			//	&modelMatrix2,
+			//	COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
+			//	false
+			//);
+		}
+
+		// =================================
+	}
+}
+
 CVector3 CGrid::getPos(int x, int y)
 {
 	return m_grid[x][y].getPos();
+}
+
+void CGrid::onF4(int mods)
+{
+	if (m_renderPolygonMode == 0)
+	{
+		getOpenGLRenderer()->setFillPolygonMode();
+		m_renderPolygonMode = 1;
+	}
+	else
+	{
+		getOpenGLRenderer()->setWireframePolygonMode();
+		m_renderPolygonMode = 0;
+	}
+}
+
+void CGrid::onArrowUp(int mods)
+{
+	getOpenGLRenderer()->moveCamera(0.05);
+}
+
+void CGrid::onArrowDown(int mods)
+{
+	getOpenGLRenderer()->moveCamera(-0.05);
 }
 
 void CGrid::run()
@@ -379,7 +476,7 @@ void CGrid::run()
 		if (getGameWindow()->create(CAPP_PROGRA3_HEXGRID_WINDOW_TITLE))
 		{
 
-			initialize();
+			initialize(10, 10, 1, false);
 
 			// Set initial clear screen color
 			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
@@ -398,4 +495,10 @@ void CGrid::run()
 			}
 		}
 	}
+}
+
+bool CGrid::initializeMenu()
+{
+	//initialize(10, 10, 1, false);
+	return true;
 }

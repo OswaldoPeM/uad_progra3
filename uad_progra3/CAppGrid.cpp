@@ -139,6 +139,7 @@ CAppGrid::~CAppGrid()
 
 void CAppGrid::update(double deltaTime)
 {
+
 }
 
 void CAppGrid::run()

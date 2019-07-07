@@ -10,7 +10,7 @@ class CGridCell
 	void getVertex(float* buf);
 
 	int *m_ObjInstanceIndex = nullptr;
-	unsigned int m_textureID;
+	unsigned int m_textureID=1;
 
 
 public:

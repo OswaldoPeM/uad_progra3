@@ -7,18 +7,21 @@
 
 class CGrid:public CApp
 {
-	CGridCell **m_grid;
+	CGridCell **m_grid=nullptr;
+	CVector3 m_objectPosition{ 0.0f,0.0f,0.0f };
 	int  m_col, m_row, m_numFacesGrid,m_renderPolygonMode;
 	bool loaded = false;
 	bool m_initialized;
+	double m_objectRotatiion;
+	double m_objecrotatiionSpeed;
 
-	unsigned int m_gridShaderPrgmID;
-	unsigned int m_gridTextureProgramID;
-	unsigned int m_textureID;
-	unsigned int m_graphicsMemoriObjectId;
+	unsigned int m_gridShaderPrgmID=0;
+	unsigned int m_gridTextureProgramID=0;
+	unsigned int m_textureID=0;
+	unsigned int m_graphicsMemoriObjectId=0;
 
-	float *vData,*vertexUVs,*nData;
-	unsigned short *tIndices,*nIndices;
+	float *vData=nullptr,*vertexUVs=nullptr,*nData=nullptr;
+	unsigned short *tIndices=nullptr,*nIndices=nullptr;
 
 	int m_numVertices, m_numNormals, m_nummUVCoord, m_numIndicesVert, m_numIndicesNormal, m_numIndicesUVCoords;
 
@@ -40,10 +43,18 @@ class CGrid:public CApp
 	
 public:
 	CGrid();
+	CGrid(int window_width, int window_height);
 	~CGrid();
 	void initialize();
 	void initialize(int cols, int  rows, float size, bool flat);
-	CVector3 getPos(int x, int y);
+	void update(double deltatime);
+	void render();
 	void run();
+	bool initializeMenu();
+	CVector3 getPos(int x, int y);
+
+	void onF4(int mods);
+	void onArrowUp(int mods);
+	void onArrowDown(int mods);
 };
 
