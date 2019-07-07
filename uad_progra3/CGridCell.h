@@ -19,11 +19,11 @@ public:
 	CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat, int x, int y);
 	~CGridCell();
 
-	void setObjIns(int objIns);
+	void setObjIns(int *objIns);
 	void setTextureID(unsigned int texID);
 
 	int* getObjins();
 	CVector3 *getVecVerx();
 	CVector3 getPos();
-	int getObjInstance();
+	int *getObjInstance();
 };

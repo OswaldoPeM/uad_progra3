@@ -11,6 +11,7 @@ void CGrid::reset()
 		{
 			delete[] m_grid[i];
 		}
+		delete[] m_grid;
 		m_grid = nullptr;
 	}
 	if (vData != nullptr) {
@@ -25,7 +26,8 @@ void CGrid::reset()
 
 void CGrid::setTIndicesSize()
 {
-	tIndices = new int[m_numFacesGrid * 3];
+	tIndices = new unsigned short[m_numFacesGrid * 3];
+	m_numIndicesVert = m_numFacesGrid;
 }
 
 void CGrid::setNDataSize()
@@ -35,16 +37,31 @@ void CGrid::setNDataSize()
 	{
 		nData[i] = 0.0f;
 	}
+	m_numNormals = m_numFacesGrid;
+}
+
+void CGrid::setNIndices()
+{
+	nIndices = new unsigned short[m_numFacesGrid * 3];
+	for (int i = 0; i < m_numFacesGrid; i++)
+	{
+		nIndices[(i * 3)] = i;
+		nIndices[(i * 3)+1] = i;
+		nIndices[(i * 3)+2] = i;
+	}
+	m_numIndicesNormal = m_numFacesGrid;
 }
 
 void CGrid::setVDataSize()
 {
 	vData = new float[m_col*m_row * 3 * 6];
+	m_numVertices = m_col * m_row * 6;
 }
 
 void CGrid::setVertexUVsSize()
 {
 	vertexUVs = new float[m_col*m_row * 6];
+	m_nummUVCoord = m_col * m_row * 6;
 }
 
 void CGrid::addVData(int &index, CVector3 *vertex)
@@ -99,6 +116,27 @@ void CGrid::addTInices(int i, int j, int &index)
 	tIndices[index++] = (m_col * 6 * i) + (j * 6) + 4;
 }
 
+void CGrid::normcrossprod(float v1[3], float v2[3], float out[3])
+{
+	out[0] = v1[1] * v2[2] - v1[2] * v2[1];
+	out[1] = v1[2] * v2[0] - v1[0] * v2[2];
+	out[2] = v1[0] * v2[1] - v1[1] * v2[0];
+
+	normalize(out);
+}
+
+void CGrid::normalize(float v[3])
+{
+	float d = sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	if (d == 0.0f)
+	{
+		return;
+	}
+	v[0] /= d;
+	v[1] /= d;
+	v[2] /= d;
+}
+
 
 CGrid::CGrid()
 {
@@ -114,26 +152,20 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	reset();
 	//Setters
 	int vDataIndx = 0, tIndIndex = 0;
+	float v1[3], v2[3], v3[3], v1v2[3], v1v3[3], norm[3];
 	m_row = rows;
 	m_col = cols;
 	setVDataSize();
 	setVertexUVsSize();
 	m_numFacesGrid = m_col * m_row * 4;
 	setTIndicesSize();
-
+	setNIndices();
 	//create a bidimiensional array of CGridCells
-	float x, y, sizeSide, sizeHight;
 	m_grid = new CGridCell*[m_row];
 	for (int i = 0; i < m_row; i++)
 	{
 		m_grid[i] = new CGridCell[m_col];
 	}
-
-	//if flat, x cosf(30) y sinf(30).
-	//space between hex center and 
-	x = (!flat) ? sinf(60)*size * 2 : cosf(90)*size * 2;
-	y = (!flat) ? cosf(0)*size * 2 : cosf(30)*size * 2;
-
 
 	for (int i = 0; i < m_row; i++)
 	{
@@ -147,6 +179,56 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 		}
 	}
 	addVertexUVs();
+
+	for (int i = 0; i < m_numFacesGrid; i++)
+	{
+		// Vertex 1
+		v1[0] = vData[tIndices[i * 3]];
+		v1[1] = vData[tIndices[i * 3] + 1];
+		v1[2] = vData[tIndices[i * 3] + 2];
+
+		// Vertex 2
+		v2[0] = vData[tIndices[(i * 3) + 1]];
+		v2[1] = vData[tIndices[(i * 3) + 1] + 1];
+		v2[2] = vData[tIndices[(i * 3) + 1] + 2];
+
+		// Vertex 3
+		v3[0] = vData[tIndices[(i * 3) + 2]];
+		v3[1] = vData[tIndices[(i * 3) + 2] + 1];
+		v3[2] = vData[tIndices[(i * 3) + 2] + 2];
+
+		// Vector from v2 to v1
+		v1v2[0] = v1[0] - v2[0];
+		v1v2[1] = v1[1] - v2[1];
+		v1v2[2] = v1[2] - v2[2];
+
+		// Vector from v2 to v3
+		v1v3[0] = v3[0] - v2[0];
+		v1v3[1] = v3[1] - v2[1];
+		v1v3[2] = v3[2] - v2[2];
+
+		normcrossprod(v1v2, v1v3, norm);
+
+		nData[i * 3] = norm[0];
+		nData[(i * 3) + 1] = norm[1];
+		nData[(i * 3) + 2] = norm[2];
+	}
+	loaded = getOpenGLRenderer()->allocateGraphicsMemoryForObject(
+		&m_gridShaderPrgmID,
+		&m_graphicsMemoriObjectId,
+		vData,
+        m_numVertices,
+		nData,
+		m_numNormals,
+		vertexUVs,
+		5,
+		tIndices,
+		6,
+		nIndices,
+		6,
+		tIndices,
+		6
+	);
 }
 
 CVector3 CGrid::getPos(int x, int y)

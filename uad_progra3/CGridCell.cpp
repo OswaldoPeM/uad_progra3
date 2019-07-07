@@ -67,12 +67,12 @@ CGridCell::~CGridCell()
 
 
 
-int CGridCell::getObjInstance()
+int *CGridCell::getObjInstance()
 {
 	return m_ObjInstanceIndex;
 }
 
-void CGridCell::setObjIns(int objIns)
+void CGridCell::setObjIns(int *objIns)
 {
 	m_ObjInstanceIndex = objIns;
 }
