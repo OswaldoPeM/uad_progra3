@@ -21,9 +21,9 @@ CGridCell::CGridCell(int *objIndex,float size,bool flat)
 	m_ObjInstanceIndex = objIndex;
 	for (int i = 0; i < 6; i++)
 	{
-		m_vertex[i].X = (flat) ? -sin(((60 * i) - 30)*(3.14159265359/180.0))*size : cosf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
+		m_vertex[i].X = (flat) ? cos(((60 * i) )*(3.14159265359/180.0))*size : cosf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
 		m_vertex[i].Y = 0;
-		m_vertex[i].Z = (flat) ? -cos(((60 * i)-30)*(3.14159265359 / 180.0))*size : sinf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
+		m_vertex[i].Z = (flat) ? sin(((60 * i) )*(3.14159265359 / 180.0))*size : sinf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
 	}
 	m_vertex[6].X = 0;
 	m_vertex[6].Y = 0;
@@ -37,7 +37,7 @@ CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
 	if (!flat) {
 		par = ((x & 1)) ? firstCell[0].getX() : 0;
 		farX = firstCell[0].getX();
-		awaY = firstCell[2].getZ()*1.5f;
+		awaY = firstCell[4].getZ()*1.5f;
 		for (int i = 0; i < 7; i++)
 		{
 			m_vertex[i].X = firstCell[i].getX() + (farX * 2 * y) + par;
@@ -45,17 +45,17 @@ CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
 			m_vertex[i].Z = firstCell[i].getZ() + (awaY  * x);
 		}
 	}
-	else {
+	if(flat) {
 
-		par = ((y & 1)) ? firstCell[4].getZ() : 0;
-		farX = firstCell[3].getX()*1.5;
-		awaY = firstCell[4].getZ();
+		par = ((y & 1)) ? firstCell[1].getZ() : 0;
+		farX = firstCell[0].getX()*1.5;
+		awaY = firstCell[1].getZ();
 
 		for (int i = 0; i < 7; i++)
 		{
-			m_vertex[i].X = firstCell->getX() + (farX * y);
+			m_vertex[i].X = firstCell[i].getX() + (farX * y);
 			m_vertex[i].Y = 0;
-			m_vertex[i].Z = firstCell->getZ() + (awaY * 2 * x) + par;
+			m_vertex[i].Z = firstCell[i].getZ() + (awaY * 2 * x) + par;
 		}
 	}
 }

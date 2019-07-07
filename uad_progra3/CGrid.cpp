@@ -303,13 +303,15 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	{
 		for (int j = 0; j < m_col; j++)
 		{
-			if (i == 0)if (j == 0)m_grid[i][j] = CGridCell(nullptr, size, flat);
-			m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, flat, i, j);
-
+			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, size, flat);
+			else {
+				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, flat, i, j);
+			}
 			addVData(vDataIndx, m_grid[i][j].getVecVerx());
 			addTInices(i, j, tIndIndex);
 		}
 	}
+
 	addVertexUVs();
 	setNDataSize();
 	for (int i = 0; i < m_numFacesGrid; i++)
@@ -476,7 +478,7 @@ void CGrid::run()
 		if (getGameWindow()->create(CAPP_PROGRA3_HEXGRID_WINDOW_TITLE))
 		{
 
-			initialize(100, 100, 1, false);
+			initialize(10, 10, 1, true);
 
 			// Set initial clear screen color
 			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
