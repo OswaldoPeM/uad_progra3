@@ -98,7 +98,7 @@ void CGrid::setVDataSize()
 
 void CGrid::setVertexUVsSize()
 {
-	vertexUVs = new float[m_col*m_row * 6];
+	vertexUVs = new float[m_col*m_row * 2 * 6];
 	m_nummUVCoord = m_col * m_row * 6;
 }
 
@@ -127,11 +127,11 @@ void CGrid::addVData(int &index, CVector3 *vertex)
 
 void CGrid::addVertexUVs()
 {
-	int length = m_col * m_row * 6;
+	int length = m_col * m_row * 2 * 6;
 	for (int i = 0; i < length; i++)
 	{
 		vertexUVs[i++] = 0.5f;
-		vertexUVs[i] = .60f;
+		vertexUVs[i] = 0.60f;
 	}
 }
 
@@ -343,9 +343,12 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 
 		normcrossprod(v1v2, v1v3, norm);
 
-		nData[i * 3] = norm[0];
+		/*nData[i * 3] = norm[0];
 		nData[(i * 3) + 1] = norm[1];
-		nData[(i * 3) + 2] = norm[2];
+		nData[(i * 3) + 2] = norm[2];*/
+		nData[i * 3] = 0.0f;
+		nData[(i * 3) + 1] = 1.0f;
+		nData[(i * 3) + 2] = 0.0f;
 	}
 
 
@@ -478,7 +481,7 @@ void CGrid::run()
 		if (getGameWindow()->create(CAPP_PROGRA3_HEXGRID_WINDOW_TITLE))
 		{
 
-			initialize(10, 10, 1, false);
+			initialize(100,100, 1, true);
 
 			// Set initial clear screen color
 			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
