@@ -37,7 +37,7 @@ CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
 	if (!flat) {
 		par = ((x & 1)) ? firstCell[0].getX() : 0;
 		farX = firstCell[0].getX();
-		awaY = firstCell[4].getZ()*1.5f;
+		awaY = firstCell[5].getZ()*1.5f;
 		for (int i = 0; i < 7; i++)
 		{
 			m_vertex[i].X = firstCell[i].getX() + (farX * 2 * y) + par;

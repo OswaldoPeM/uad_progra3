@@ -478,13 +478,14 @@ void CGrid::run()
 		if (getGameWindow()->create(CAPP_PROGRA3_HEXGRID_WINDOW_TITLE))
 		{
 
-			initialize(10, 10, 1, true);
+			initialize(10, 10, 1, false);
 
 			// Set initial clear screen color
 			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
 
 			// Initialize window width/height in the renderer
 			getOpenGLRenderer()->setWindowWidth(getGameWindow()->getWidth());
+		
 			getOpenGLRenderer()->setWindowHeight(getGameWindow()->getHeight());
 
 			if (m_initialized)
