@@ -4,7 +4,7 @@
 #include"Include/C3DModel_Obj.h"
 #include"CGrid.h"
 
-class CWorld
+class CWorld :public CApp
 {
 	COpenGLRenderer *openGlRenderer;
 	CGrid *GRID;
@@ -17,6 +17,7 @@ public:
 	void render();
 	
 	CWorld();
+	CWorld(int window_width, int window_height);
 	~CWorld();
 };
 

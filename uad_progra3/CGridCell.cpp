@@ -21,9 +21,9 @@ CGridCell::CGridCell(int *objIndex,float size,bool flat)
 	m_ObjInstanceIndex = objIndex;
 	for (int i = 0; i < 6; i++)
 	{
-		m_vertex[i].X = (flat) ? cos(((60 * i) )*(3.14159265359/180.0))*size : cosf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
+		m_vertex[i].X = (!flat) ? cos(((60 * i) )*(3.14159265359/180.0))*size : cosf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
 		m_vertex[i].Y = 0;
-		m_vertex[i].Z = (flat) ? sin(((60 * i) )*(3.14159265359 / 180.0))*size : sinf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
+		m_vertex[i].Z = (!flat) ? sin(((60 * i) )*(3.14159265359 / 180.0))*size : sinf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
 	}
 	m_vertex[6].X = 0;
 	m_vertex[6].Y = 0;

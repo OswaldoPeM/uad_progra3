@@ -1,17 +1,27 @@
 #pragma once
 #include<vector>
+#include<Windows.h>
+#include<fstream>
 #include<math.h>
+#include"Include/Globals.h"
 #include "Include\COpenGLRenderer.h"
 #include"CGridCell.h"
 #include "Include/CApp.h"
+#include "Dependencies/JSON/nlohmann/json.hpp"
+
+
+using  json = nlohmann::json;
 
 class CGrid:public CApp
 {
 	CGridCell **m_grid=nullptr;
 	CVector3 m_objectPosition{ 0.0f,0.0f,0.0f };
-	int  m_col, m_row, m_numFacesGrid,m_renderPolygonMode;
+	int m_col, m_row, m_numFacesGrid,m_renderPolygonMode;
+	float  m_cellSize;
 	bool loaded = false;
 	bool m_initialized;
+	bool m_orientation;
+
 	double m_objectRotatiion;
 	double m_objecrotatiionSpeed;
 
@@ -46,6 +56,9 @@ public:
 	CGrid(int window_width, int window_height);
 	~CGrid();
 	void initialize();
+
+	bool readWorld(const char * const filename);
+	void readJson(const char * const filename);
 	void initialize(int cols, int  rows, float size, bool flat);
 	void update(double deltatime);
 	void render();
@@ -53,6 +66,7 @@ public:
 	bool initializeMenu();
 	CVector3 getPos(int x, int y);
 
+	void onF2(int mods);
 	void onF4(int mods);
 	void onArrowUp(int mods);
 	void onArrowDown(int mods);

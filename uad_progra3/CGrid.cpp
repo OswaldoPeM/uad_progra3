@@ -198,6 +198,62 @@ void CGrid::initialize()
 {
 }
 
+bool CGrid::readWorld(const char * const filename)
+{
+	std::wstring wresourceFilenameVS;
+	std::wstring wresourceFilenameFS;
+	std::string resourceFilenameVS;
+	std::string resourceFilenameFS;
+
+	char *vertexShaderToLoad = VERTEX_SHADER_3D_OBJECT;
+	char *fragmentShaderToLoad = FRAGMENT_SHADER_3D_OBJECT;
+	reset();
+
+	std::string stdFilename(filename);
+	size_t dotIndex = stdFilename.rfind('.', stdFilename.length());
+	if (dotIndex != string::npos)
+	{
+		std::string fileExtension = stdFilename.substr(dotIndex + 1, stdFilename.length() - dotIndex);
+
+		// Convert to lowercase
+		// NOTE: ::tolower works on single bytes, which can be a problem for multi-byte encoding, like UTF8
+		std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), ::tolower);
+
+		cout << "File extension: " << fileExtension << endl;
+
+		// Now check the file type and see if it's a supported type
+		if (!fileExtension.compare("json"))
+		{
+			cout << "Loading JSON ..." << endl;
+			readJson(filename);
+		
+		}
+		
+	}
+	else
+	{
+		cout << "ERROR: Cannot determine the file type" << endl;
+		return nullptr;
+	}
+}
+
+void CGrid::readJson(const char * const filename)
+{
+	ifstream infile;
+	json J;
+	string orientacion;
+	infile.open(filename);
+
+	J << infile;
+	m_col = J["HexGrid"]["numCols"];
+	m_row = J["HexGrid"]["numRows"];
+	m_cellSize=J["HexGrid"]["cellSize"];
+	orientacion = J["HexGrid"]["orientation"].get<string>();
+	if (orientacion == "pointy")m_orientation = false;
+	if (orientacion == "flat")m_orientation = true;
+
+}
+
 void CGrid::initialize(int cols, int  rows, float size, bool flat)
 {
 	reset();
@@ -303,9 +359,9 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	{
 		for (int j = 0; j < m_col; j++)
 		{
-			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, size, flat);
+			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, m_cellSize, flat);
 			else {
-				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, flat, i, j);
+				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, m_cellSize, i, j);
 			}
 			addVData(vDataIndx, m_grid[i][j].getVecVerx());
 			addTInices(i, j, tIndIndex);
@@ -449,6 +505,36 @@ CVector3 CGrid::getPos(int x, int y)
 	return m_grid[x][y].getPos();
 }
 
+void CGrid::onF2(int mods)
+{
+	std::wstring wideStringBuffer = L"";
+	wideStringBuffer.resize(MAX_PATH);
+
+	OPENFILENAME ofn;
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFilter = L" Obj Files\0*.obj\0 Stl Files\0*.stl\0 3DS Files\0*.3ds\0 All files\0*.*\0";
+	ofn.lpstrFile = &wideStringBuffer[0];
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrTitle = L"Select a model file";
+	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+	if (GetOpenFileName(&ofn))
+	{
+		int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wideStringBuffer[0], (int)wideStringBuffer.size(), NULL, 0, NULL, NULL);
+		std::string multibyteString(size_needed, 0);
+		WideCharToMultiByte(CP_UTF8, 0, &wideStringBuffer[0], (int)wideStringBuffer.size(), &multibyteString[0], size_needed, NULL, NULL);
+		cout << "Filename to load: " << multibyteString.c_str() << endl;
+
+		if (!readWorld(multibyteString.c_str()))
+		{
+			cout << "Unable to load hexgrid" << endl;
+		}
+	}
+	initialize(m_col, m_row, m_cellSize, m_orientation);
+}
+
 void CGrid::onF4(int mods)
 {
 	if (m_renderPolygonMode == 0)
@@ -465,12 +551,12 @@ void CGrid::onF4(int mods)
 
 void CGrid::onArrowUp(int mods)
 {
-	getOpenGLRenderer()->moveCamera(0.05);
+	getOpenGLRenderer()->moveCamera(0.05f);
 }
 
 void CGrid::onArrowDown(int mods)
 {
-	getOpenGLRenderer()->moveCamera(-0.05);
+	getOpenGLRenderer()->moveCamera(-0.05f);
 }
 
 void CGrid::run()
@@ -481,7 +567,7 @@ void CGrid::run()
 		if (getGameWindow()->create(CAPP_PROGRA3_HEXGRID_WINDOW_TITLE))
 		{
 
-			initialize(100,100, 1, true);
+			initialize();
 
 			// Set initial clear screen color
 			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
