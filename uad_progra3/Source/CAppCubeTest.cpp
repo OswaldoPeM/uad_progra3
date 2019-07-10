@@ -6,11 +6,12 @@
 #include <vector>
 #include <string>
 using namespace std;
-
+#include"..\..\..\..\..\Oswal\source\repos\Progra3MathDLL\Progra3MathDLL\Header.h"
 #include "../Include/Globals.h"
 #include "../Include/CAppCubeTest.h"
 #include "../Include/C3DModel.h"
 #include "../Include/CWideStringHelper.h"
+
 
 /* */
 CAppCubeTest::CAppCubeTest() :
