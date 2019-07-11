@@ -16,8 +16,8 @@ using namespace std;
 #include "CAppGrid.h"
 
 //incluir esto en el lector de JSON
-#include "Dependencies/JSON/nlohmann/json.hpp"
-using  json = nlohmann::json;
+//#include "Dependencies/JSON/nlohmann/json.hpp"
+//using  json = nlohmann::json;
 
 int main()
 {

@@ -253,23 +253,23 @@ void CGrid::readJson(const char * const filename)
 	if (orientacion == "pointy")m_orientation = true;
 	if (orientacion == "flat")m_orientation = false;
 	m_numObj = J["HexGrid"]["3DObj"].size();
-	///*for (int i = 0; i < m_numObj; i++)
-	//{*/
-	//	CObjInstance obj;
-	//	C3DModel *OBJ;
-	//	string aber = "TF2_REF_SOLDIER_yz.obj";
-	//	OBJ->load(aber.c_str());
-	//	obj.Obj = OBJ;
-	//	obj.cords = CVector3(
-	//		J["HexGrid"]["3DObj"]["ObjA"]["cords"]["X"].get<float>(),
-	//		J["HexGrid"]["3DObj"]["ObjA"]["cords"]["Y"].get<float>(),
-	//		J["HexGrid"]["3DObj"]["ObjA"]["cords"]["Z"].get<float>()
-	//	);
-	//	obj.scale = J["3DObj"]["ObjA"]["scale"].get<float>();
+	/*for (int i = 0; i < m_numObj; i++)
+	{*/
+	/*	CObjInstance obj;
+		C3DModel *OBJ;
+		string aber = "C:\\Users\\Oswal\\Documents\\uad_progra3\\uad_progra3\\Resources\\MEDIA\\MODELS\\TF2\\" + J["HexGrid"]["3DObj"]["ObjA"]["fileName"].get<string>();
 
-	////}
-	//
-
+		OBJ = C3DModel::load(aber.c_str());
+		obj.Obj = OBJ;
+		obj.cords = CVector3(
+			J["HexGrid"]["3DObj"]["ObjA"]["cords"]["X"].get<float>(),
+			J["HexGrid"]["3DObj"]["ObjA"]["cords"]["Y"].get<float>(),
+			J["HexGrid"]["3DObj"]["ObjA"]["cords"]["Z"].get<float>()
+		);
+		obj.scale = J["HexGrid"]["3DObj"]["ObjA"]["scale"].get<float>();
+*/
+	//}
+		infile.close();
 }
 
 void CGrid::initialize(int cols, int  rows, float size, bool flat)

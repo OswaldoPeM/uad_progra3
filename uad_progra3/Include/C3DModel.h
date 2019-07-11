@@ -49,8 +49,8 @@ protected:
 	bool m_modelHasNormals;											  // Flag to determine if this model has normals
 	bool m_modelHasUVs;												  // Flag to determine if this model has UVs
 	bool m_modelHasTextures;										  // Flag to determine if this model has a valid texture filename
+	char *m_nodelFileName;
 	char *m_modelTextureFilename;
-
 	virtual void reset();                                             // Cleanup any allocated memory
 	virtual bool loadFromFile(const char * const filename) = 0;
 
