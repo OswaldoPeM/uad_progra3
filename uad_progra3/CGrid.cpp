@@ -17,14 +17,6 @@ void CGrid::reset()
 {
 	m_row = 0;
 	m_col = 0;
-	if (m_grid != nullptr) {
-		for (int i = 0; i < m_col; i++)
-		{
-			delete[] m_grid[i];
-		}
-		delete[] m_grid;
-
-	}
 	if (vData != nullptr) {
 		delete[] vData;
 		vData = nullptr;
@@ -59,6 +51,14 @@ void CGrid::reset()
 	}
 	// =================================================
 
+	if (m_grid != nullptr) {
+		for (int i = 0; i < m_col; i++)
+		{
+			delete[] m_grid[i];
+		}
+		delete[] m_grid;
+		m_grid = nullptr;
+	}
 }
 
 void CGrid::setTIndicesSize()
@@ -243,14 +243,32 @@ void CGrid::readJson(const char * const filename)
 	json J;
 	string orientacion;
 	infile.open(filename);
+	int m_numObj;
 
 	J << infile;
 	m_col = J["HexGrid"]["numCols"];
 	m_row = J["HexGrid"]["numRows"];
 	m_cellSize=J["HexGrid"]["cellSize"];
 	orientacion = J["HexGrid"]["orientation"].get<string>();
-	if (orientacion == "pointy")m_orientation = false;
-	if (orientacion == "flat")m_orientation = true;
+	if (orientacion == "pointy")m_orientation = true;
+	if (orientacion == "flat")m_orientation = false;
+	m_numObj = J["HexGrid"]["3DObj"].size();
+	///*for (int i = 0; i < m_numObj; i++)
+	//{*/
+	//	CObjInstance obj;
+	//	C3DModel *OBJ;
+	//	string aber = "TF2_REF_SOLDIER_yz.obj";
+	//	OBJ->load(aber.c_str());
+	//	obj.Obj = OBJ;
+	//	obj.cords = CVector3(
+	//		J["HexGrid"]["3DObj"]["ObjA"]["cords"]["X"].get<float>(),
+	//		J["HexGrid"]["3DObj"]["ObjA"]["cords"]["Y"].get<float>(),
+	//		J["HexGrid"]["3DObj"]["ObjA"]["cords"]["Z"].get<float>()
+	//	);
+	//	obj.scale = J["3DObj"]["ObjA"]["scale"].get<float>();
+
+	////}
+	//
 
 }
 
@@ -361,7 +379,7 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 		{
 			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, m_cellSize, flat);
 			else {
-				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, m_cellSize, i, j);
+				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, m_orientation, i, j);
 			}
 			addVData(vDataIndx, m_grid[i][j].getVecVerx());
 			addTInices(i, j, tIndIndex);
@@ -460,7 +478,7 @@ void CGrid::render()
 		unsigned int noTexture = 0;
 
 		// convert total degrees rotated to radians;
-		double totalDegreesRotatedRadians = 1* 3.1459 / 180.0;
+		double totalDegreesRotatedRadians = 0 * 3.1459 / 180.0;
 
 		// Get a matrix that has both the object rotation and translation
 		MathHelper::Matrix4 modelMatrix = MathHelper::ModelMatrix((float)totalDegreesRotatedRadians, m_objectPosition);
@@ -468,7 +486,7 @@ void CGrid::render()
 		if (m_graphicsMemoriObjectId > 0 && m_numFacesGrid > 0)
 		{
 			CVector3 pos2 = m_objectPosition;
-			pos2 += CVector3(3.0f, 0.0f, 0.0f);
+			pos2 += CVector3(0.0f, 0.0f, 0.0f);
 			MathHelper::Matrix4 modelMatrix2 = MathHelper::ModelMatrix((float)totalDegreesRotatedRadians, pos2);
 
 			// Render pyramid in the first position, using the color shader
@@ -514,7 +532,7 @@ void CGrid::onF2(int mods)
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = L" Obj Files\0*.obj\0 Stl Files\0*.stl\0 3DS Files\0*.3ds\0 All files\0*.*\0";
+	ofn.lpstrFilter = L"All files\0*.*\0";
 	ofn.lpstrFile = &wideStringBuffer[0];
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = L"Select a model file";

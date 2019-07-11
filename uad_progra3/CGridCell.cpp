@@ -34,10 +34,10 @@ CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
 {
 	float farX,awaY,par;
 	m_ObjInstanceIndex = ObjIndex;
-	if (!flat) {
+	if (flat) {
 		par = ((x & 1)) ? firstCell[0].getX() : 0;
 		farX = firstCell[0].getX();
-		awaY = firstCell[5].getZ()*1.5f;
+		awaY = -firstCell[5].getZ()*1.5f;
 		for (int i = 0; i < 7; i++)
 		{
 			m_vertex[i].X = firstCell[i].getX() + (farX * 2 * y) + par;
@@ -45,7 +45,7 @@ CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
 			m_vertex[i].Z = firstCell[i].getZ() + (awaY  * x);
 		}
 	}
-	if(flat) {
+	if(!flat) {
 
 		par = ((y & 1)) ? firstCell[1].getZ() : 0;
 		farX = firstCell[0].getX()*1.5;

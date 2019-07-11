@@ -1,13 +1,18 @@
 #pragma once
 #include<vector>
+#include"Include/CVector3.h"
+#include"Include/C3DModel.h";
 class CObjInstance
 {
 	//Index of Vector<object>,
-	int ObjInd = 0;
-	float references[3] = { 0.0f,1.0f,0.0f };
-	std::vector<int> IndTex;
+
 
 public:
+	C3DModel *Obj;
+	const char* fileName;
+	CVector3 cords;
+	float scale;
+
 	CObjInstance();
 	~CObjInstance();
 };
