@@ -47,8 +47,8 @@ public:
 	};
 
 private:
-	int m_windowWidth;
-	int m_windowHeight;
+	int m_frameBufferWidth;
+	int m_frameBufferHeight;
 	bool m_OpenGLError;
 
 	std::map<int, COpenGLShaderProgram*> m_shaderProgramWrappers;
@@ -216,15 +216,27 @@ public:
 		GLfloat *menuItemColor);
 
 	//
-	void setWindowWidth(int width) { m_windowWidth = width; }
-	void setWindowHeight(int height) { m_windowHeight = height; }
+	void setFramebufferWidth(int width) { m_frameBufferWidth = width; }
+	void setFramebufferHeight(int height) { m_frameBufferHeight = height; }
+	int getFramebufferWidth() const { return m_frameBufferWidth; }
+	int getFramebufferHeight() const { return m_frameBufferHeight; }
 
 	//
 	void renderColorCube(MathHelper::Matrix4 *objectTransformation = NULL);
+	void renderColorCube(
+		MathHelper::Matrix4 *modelMatrix,
+		MathHelper::Matrix4 *viewMatrix,
+		MathHelper::Matrix4 *projectionMatrix);
 	void initializeColorCube();
 
 	//
 	void renderTexturedCube(unsigned int cubeTextureID, MathHelper::Matrix4 *objectTransformation = NULL);
+	void renderTexturedCube(
+		unsigned int cubeTextureID,
+		MathHelper::Matrix4 * modelMatrix,
+		MathHelper::Matrix4 *viewMatrix,
+		MathHelper::Matrix4 *projectionMatrix);
+
 	void initializeTexturedCube();
 
 	//

@@ -155,8 +155,8 @@ void CAppGrid::run()
 			// Set initial clear screen color
 			getOpenGLRenderer()->setClearScreenColor(0.15f, 0.75f, 0.75f);
 			// Initialize window width/height in the renderer
-			getOpenGLRenderer()->setWindowWidth(getGameWindow()->getWidth());
-			getOpenGLRenderer()->setWindowHeight(getGameWindow()->getHeight());
+			getOpenGLRenderer()->setFramebufferWidth(getGameWindow()->getWidth());
+			getOpenGLRenderer()->setFramebufferHeight(getGameWindow()->getHeight());
 
 			// Create our menu (add all menu items)
 			if (!initializeMenu())

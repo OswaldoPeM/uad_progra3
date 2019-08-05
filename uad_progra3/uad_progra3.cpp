@@ -23,7 +23,7 @@ int main()
 {
 	
 	CApp *app = NULL;                  // Pointer to BASE class CApp
-	app = new CGrid(800, 600);  // Using pointer to base class, create a new object of DERIVED class
+	app = new CAppCubeTest(800, 600);  // Using pointer to base class, create a new object of DERIVED class
 	app->run();                        // Run the app
 	delete app;                        // Delete pointer
 	app = NULL;                        // Set pointer to NULL

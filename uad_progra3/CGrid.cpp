@@ -59,6 +59,7 @@ void CGrid::reset()
 		delete[] m_grid;
 		m_grid = nullptr;
 	}
+
 }
 
 void CGrid::setTIndicesSize()
@@ -267,7 +268,7 @@ void CGrid::readJson(const char * const filename)
 			J["HexGrid"]["3DObj"]["ObjA"]["cords"]["Z"].get<float>()
 		);
 		obj.scale = J["HexGrid"]["3DObj"]["ObjA"]["scale"].get<float>();
-*/
+		m_objs.push_back(obj);*/
 	//}
 		infile.close();
 }
@@ -478,16 +479,16 @@ void CGrid::render()
 		unsigned int noTexture = 0;
 
 		// convert total degrees rotated to radians;
-		double totalDegreesRotatedRadians = 0 * 3.1459 / 180.0;
+		double totalDegreesRotatedRadians = 1 * 3.1459 / 180.0;
 
 		// Get a matrix that has both the object rotation and translation
-		MathHelper::Matrix4 modelMatrix = MathHelper::ModelMatrix((float)totalDegreesRotatedRadians, m_objectPosition);
+		MathHelper::Matrix4 modelMatrix = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, m_objectPosition);
 
 		if (m_graphicsMemoriObjectId > 0 && m_numFacesGrid > 0)
 		{
 			CVector3 pos2 = m_objectPosition;
 			pos2 += CVector3(0.0f, 0.0f, 0.0f);
-			MathHelper::Matrix4 modelMatrix2 = MathHelper::ModelMatrix((float)totalDegreesRotatedRadians, pos2);
+			MathHelper::Matrix4 modelMatrix2 = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, pos2);
 
 			// Render pyramid in the first position, using the color shader
 			getOpenGLRenderer()->renderObject(
@@ -501,17 +502,38 @@ void CGrid::render()
 				false
 			);
 
-			// Render same pyramid (same vertex array object identifier), in a second position, but this time with a texture
-			//getOpenGLRenderer()->renderObject(
-			//	&m_gridShaderPrgmID,
-			//	&m_graphicsMemoriObjectId,
-			//	&m_textureID,
-			//	m_numFacesGrid,
-			//	color,
-			//	&modelMatrix2,
-			//	COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
-			//	false
-			//);
+			if (!m_objs.empty()) {
+
+				for (int i = 0; i < m_objs.size(); i++) {
+					C3DModel *m_p3DModel;
+					totalDegreesRotatedRadians = m_objs[i].rotation * 3.1459 / 180.0;
+					m_p3DModel = m_objs[i].Obj;
+					pos2 = m_objs[i].cords;
+					pos2 = CVector3(m_grid[ (int)m_objs[i].cords.getX()][(int)m_objs[i].cords.getZ()].getPos().getX(), 0, m_grid[(int)m_objs[i].cords.getX()][(int)m_objs[i].cords.getZ()].getPos().getZ());
+					MathHelper::Matrix4 pos3 = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, pos2);
+					for (int i = 0; i < m_p3DModel->getNumMaterials(); i++)
+					{
+						for (int j = 0; j < m_p3DModel->getScopeMat(i).size(); j += 2)
+						{
+
+							//if (*m_p3DModel->getTextureObjId(i))continue;//
+							getOpenGLRenderer()->renderObjectMultiMat(
+								m_p3DModel->getScopeMat(i)[j],
+								m_p3DModel->getScopeMat(i)[j + 1],
+								m_p3DModel->getShaderProgramId(),
+								m_p3DModel->getGraphicsMemoryObjectId(),
+								&noTexture,
+								m_p3DModel->getNumFaces(),
+								color,
+								&pos3,
+								COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
+								false
+							);
+						}
+					}
+
+				}
+			}
 		}
 
 		// =================================
@@ -591,9 +613,9 @@ void CGrid::run()
 			getOpenGLRenderer()->setClearScreenColor(0.25f, 0.0f, 0.75f);
 
 			// Initialize window width/height in the renderer
-			getOpenGLRenderer()->setWindowWidth(getGameWindow()->getWidth());
+			//getOpenGLRenderer()->setFramebufferWidth(getGameWindow()->getWidth());
 		
-			getOpenGLRenderer()->setWindowHeight(getGameWindow()->getHeight());
+			//getOpenGLRenderer()->setFramebufferHeight(getGameWindow()->getHeight());
 
 			if (m_initialized)
 			{
