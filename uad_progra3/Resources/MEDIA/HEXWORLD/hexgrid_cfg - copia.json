@@ -1,0 +1,35 @@
+﻿
+
+
+
+
+
+{
+	"HexGrid" : {
+		"numCols" : 100,
+		"numRows" : 100,
+		"cellSize" : 1.0,
+		"orientation" : "pointy",
+		"3DObj": {
+			"ObjA" : {
+				"fileName" : "TF2_REF_SOLDIER_yz.obj",
+				"cords" : {
+					"X" : 2,
+					"Y" : 0,
+					"Z" : 2
+				},
+				"scale" : 1
+			},
+			"ObjB" : {
+				"fileName":"Lamborghini_Aventador",
+				"cords" : {
+					"X":5,
+					"Y":0,
+					"Z":2
+				},
+				"scale" : 0.5
+			}
+		
+		}
+	}
+}

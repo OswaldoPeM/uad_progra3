@@ -590,7 +590,6 @@ bool C3DModel_Obj::parseObjLine(std::string line, bool countOnly, int lineNumber
 bool C3DModel_Obj::readMtllib(std::string mtlLibFilename, std::string &materialName, std::string &materialFilename)
 {
 	bool readTextureName = false;
-	mtlLibFilename = "C:\\Users\\Oswal\\Documents\\uad_progra3\\uad_progra3\\Resources\\MEDIA\\MODELS\\TF2\\" + mtlLibFilename;
 	ifstream infile;
 	string lineBuffer;
 	char *nextToken = nullptr;
