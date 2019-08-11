@@ -9,8 +9,9 @@
 #include "Include\COpenGLRenderer.h"
 #include"CGridCell.h"
 #include "Include/CApp.h"
+#include"Quadtree.h"
 #include "Dependencies/JSON/nlohmann/json.hpp"
-
+#define _USE_MATH_DEFINES
 
 using  json = nlohmann::json;
 
@@ -64,11 +65,15 @@ public:
 	bool readWorld(const char * const filename);
 	void readJson(const char * const filename);
 	void initialize(int cols, int  rows, float size, bool flat);
+	void initializeQT(int cols, int rows, float size, bool flat);
 	void update(double deltatime);
+	void renderQT();
 	void render();
 	void run();
 	bool initializeMenu();
+	CGridCell getCell(int x, int y);
 	CVector3 getPos(int x, int y);
+	vector<CGridCell> m_gridQT;
 
 	void onF2(int mods);
 	void onF4(int mods);

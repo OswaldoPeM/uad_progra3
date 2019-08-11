@@ -1,5 +1,6 @@
 #include "../stdafx.h"
 #include "../Include/CFrustum.h"
+#include "../AABB.h"
 
 /*
 */

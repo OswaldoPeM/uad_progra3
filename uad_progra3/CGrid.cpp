@@ -8,6 +8,7 @@ using namespace std;
 #include "Include/Globals.h"
 #include "Include/CAppGeometricFigures.h"
 #include "Include/CWideStringHelper.h"
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -381,9 +382,14 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, m_cellSize, flat);
 			else {
 				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, m_orientation, i, j);
+				
 			}
+
 			addVData(vDataIndx, m_grid[i][j].getVecVerx());
 			addTInices(i, j, tIndIndex);
+
+			m_gridQT.push_back(m_grid[i][j]);
+
 		}
 	}
 
@@ -454,11 +460,260 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	}
 }
 
+void CGrid::initializeQT(int cols, int rows, float size, bool flat)
+{
+	reset();
+	//Setters
+	int vDataIndx = 0, tIndIndex = 0;
+	float v1[3], v2[3], v3[3], v1v2[3], v1v3[3], norm[3];
+	m_row = rows;
+	m_col = cols;
+	vData = new float[18];
+
+
+	m_nummUVCoord = 6;
+	m_numFacesGrid = 4;
+	m_numVertices = 6;
+	m_numIndicesNormal = m_numFacesGrid;
+	vertexUVs = new float[12];
+	tIndices = new unsigned short[12];
+	m_numIndicesVert = m_numFacesGrid;
+
+	m_numIndicesUVCoords = m_numFacesGrid;
+
+	nData = new float[12];
+	m_numNormals = m_numFacesGrid;
+
+	nIndices = new unsigned short[12];
+	m_numIndicesNormal = m_numFacesGrid;
+
+
+	// Initialize app-specific stuff here
+// ==================================
+//
+	std::wstring wresourceFilenameVS, wresourceFilenameFS, wresourceFilenameTexture;
+	std::string resourceFilenameVS, resourceFilenameFS, resourceFilenameTexture;
+
+	// Color Shader
+	// Load shader file, create OpenGL Shader Object for it
+	// -------------------------------------------------------------------------------------------------------------
+
+	// Check shader for the color-only object exists
+	if (!CWideStringHelper::GetResourceFullPath(VERTEX_SHADER_3D_OBJECT, wresourceFilenameVS, resourceFilenameVS) ||
+		!CWideStringHelper::GetResourceFullPath(FRAGMENT_SHADER_3D_OBJECT, wresourceFilenameFS, resourceFilenameFS))
+	{
+		cout << "ERROR: Unable to find one or more resources: " << endl;
+		cout << "  " << VERTEX_SHADER_3D_OBJECT << endl;
+		cout << "  " << FRAGMENT_SHADER_3D_OBJECT << endl;
+
+		return;
+	}
+
+	if (!getOpenGLRenderer()->createShaderProgram(
+		&m_gridShaderPrgmID,
+		resourceFilenameVS.c_str(),
+		resourceFilenameFS.c_str()))
+	{
+		cout << "ERROR: Unable to load color shader" << endl;
+		return;
+	}
+
+	// Texture Shader
+	// Load shader file, create OpenGL Shader Object for it
+	// -------------------------------------------------------------------------------------------------------------
+
+	// Check shader for the textured object exists
+	wresourceFilenameFS.clear();
+	wresourceFilenameVS.clear();
+	resourceFilenameFS.clear();
+	resourceFilenameVS.clear();
+	if (!CWideStringHelper::GetResourceFullPath(VERTEX_SHADER_TEXTURED_3D_OBJECT, wresourceFilenameVS, resourceFilenameVS) ||
+		!CWideStringHelper::GetResourceFullPath(FRAGMENT_SHADER_TEXTURED_3D_OBJECT, wresourceFilenameFS, resourceFilenameFS))
+	{
+		cout << "ERROR: Unable to find one or more resources: " << endl;
+		cout << "  " << VERTEX_SHADER_TEXTURED_3D_OBJECT << endl;
+		cout << "  " << FRAGMENT_SHADER_TEXTURED_3D_OBJECT << endl;
+
+		return;
+	}
+
+	if (!getOpenGLRenderer()->createShaderProgram(
+		&m_gridTextureProgramID,
+		resourceFilenameVS.c_str(),
+		resourceFilenameFS.c_str()))
+	{
+		cout << "ERROR: Unable to load texture shader" << endl;
+		return;
+	}
+
+	// Texture
+	// Load texture file, create OpenGL Texture Object
+	// -------------------------------------------------------------------------------------------------------------
+
+	// Check texture file exists for the textured cube
+	if (!CWideStringHelper::GetResourceFullPath(MC_LEAVES_TEXTURE, wresourceFilenameTexture, resourceFilenameTexture))
+	{
+		cout << "ERROR: Unable to find one or more resources: " << endl;
+		cout << "  " << MC_LEAVES_TEXTURE << endl;
+		return;
+	}
+
+	// Initialize the texture
+	m_textureID = 0;
+	if (!loadTexture(resourceFilenameTexture.c_str(), &m_textureID))
+	{
+		cout << "ERROR: Unable load texture:" << endl;
+		cout << "  " << MC_LEAVES_TEXTURE << endl;
+		return;
+	}
+
+
+	//create a bidimiensional array of CGridCells
+	m_grid = new CGridCell*[m_row];
+	for (int i = 0; i < m_row; i++)
+	{
+		m_grid[i] = new CGridCell[m_col];
+	}
+
+	for (int i = 0; i < m_row; i++)
+	{
+		for (int j = 0; j < m_col; j++)
+		{
+			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, m_cellSize, flat);
+			else {
+				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, m_orientation, i, j);
+
+			}
+
+			//addVData(vDataIndx, m_grid[i][j].getVecVerx());
+			//addTInices(i, j, tIndIndex);
+
+			m_gridQT.push_back(m_grid[i][j]);
+
+		}
+	}
+
+	vData[0] = m_gridQT[0].getVecVerx()[0].getX();
+	vData[1] = m_gridQT[0].getVecVerx()[0].getY();
+	vData[2] = m_gridQT[0].getVecVerx()[0].getZ();
+	vData[3] = m_gridQT[0].getVecVerx()[1].getX();
+	vData[4] = m_gridQT[0].getVecVerx()[1].getY();
+	vData[5] = m_gridQT[0].getVecVerx()[1].getZ();
+	vData[6] = m_gridQT[0].getVecVerx()[2].getX();
+	vData[7] = m_gridQT[0].getVecVerx()[2].getY();
+	vData[8] = m_gridQT[0].getVecVerx()[2].getZ();
+	vData[9] = m_gridQT[0].getVecVerx()[3].getX();
+	vData[10] = m_gridQT[0].getVecVerx()[3].getY();
+	vData[11] = m_gridQT[0].getVecVerx()[3].getZ();
+	vData[12] = m_gridQT[0].getVecVerx()[4].getX();
+	vData[13] = m_gridQT[0].getVecVerx()[4].getY();
+	vData[14] = m_gridQT[0].getVecVerx()[4].getZ();
+	vData[15] = m_gridQT[0].getVecVerx()[5].getX();
+	vData[16] = m_gridQT[0].getVecVerx()[5].getY();
+	vData[17] = m_gridQT[0].getVecVerx()[5].getZ();
+
+	//
+	vertexUVs[0] = 0.5f;
+	vertexUVs[1] = 0.9f;
+	vertexUVs[2] = 0.5f;
+	vertexUVs[3] = 0.9f;
+	vertexUVs[4] = 0.5f;
+	vertexUVs[5] = 0.9f;
+	vertexUVs[6] = 0.5f;
+	vertexUVs[7] = 0.9f;
+	vertexUVs[8] = 0.5f;
+	vertexUVs[9] = 0.9f;
+	vertexUVs[10] = 0.5f;
+	vertexUVs[11] = 0.9f;
+
+	//
+	tIndices[0] = 0;
+	tIndices[1] = +2;
+	tIndices[2] = +1;
+
+	tIndices[3] = 0;
+	tIndices[4] = +2;
+	tIndices[5] = +5;
+
+	tIndices[6] = +2;
+	tIndices[7] = +3;
+	tIndices[8] = +5;
+
+	tIndices[9] = +3;
+	tIndices[10] = +5;
+	tIndices[11] = +4;
+
+	//
+	nData[0] = 0.0;
+	nData[1] = 1.0;
+	nData[2] = 0.0;
+
+	nData[3] = 0.0;
+	nData[4] = 1.0;
+	nData[5] = 0.0;
+
+	nData[6] = 0.0;
+	nData[7] = 1.0;
+	nData[8] = 0.0;
+
+	nData[9] = 0.0;
+	nData[10] = 1.0;
+	nData[11] = 0.0;
+
+	//
+	nIndices[0] = 0;
+	nIndices[1] = 0;
+	nIndices[2] = 0;
+
+	nIndices[3] = 1;
+	nIndices[4] = 1;
+	nIndices[5] = 1;
+
+	nIndices[6] = 2;
+	nIndices[7] = 2;
+	nIndices[8] = 2;
+
+	nIndices[9] = 3;
+	nIndices[10] = 3;
+	nIndices[11] = 3;
+
+	//
+
+
+	loaded = getOpenGLRenderer()->allocateGraphicsMemoryForObject(
+		&m_gridShaderPrgmID,
+		&m_graphicsMemoriObjectId,
+		vData,
+		m_numVertices,
+		nData,
+		m_numNormals,
+		vertexUVs,
+		m_nummUVCoord,
+		tIndices,
+		m_numIndicesVert,
+		nIndices,
+		m_numIndicesNormal,
+		tIndices,
+		m_numIndicesUVCoords
+	);
+
+	if (!loaded) {
+		m_numFacesGrid = 0;
+		if (m_graphicsMemoriObjectId > 0)
+		{
+			getOpenGLRenderer()->freeGraphicsMemoryForObject(&m_graphicsMemoriObjectId);
+			m_graphicsMemoriObjectId = 0;
+		}
+	}
+}
+
+
+
 void CGrid::update(double deltatime)
 {
 }
 
-void CGrid::render()
+void CGrid::renderQT()
 {
 	CGameMenu *menu = getMenu();
 
@@ -467,30 +722,24 @@ void CGrid::render()
 		&& menu->isInitialized()
 		&& menu->isActive())
 	{
-		//...
 	}
-	else // Otherwise, render app-specific stuff here...
+	else 
 	{
-		// =================================
-		//
-		// White 
-		// Colors are in the 0..1 range, if you want to use RGB, use (R/255, G/255, G/255)
+
 		float color[3] = { 1.0f, 1.0f, 1.0f };
 		unsigned int noTexture = 0;
+		double totalDegreesRotatedRadians = 3.1459 / 180.0;
 
-		// convert total degrees rotated to radians;
-		double totalDegreesRotatedRadians = 1 * 3.1459 / 180.0;
+		
 
-		// Get a matrix that has both the object rotation and translation
-		MathHelper::Matrix4 modelMatrix = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, m_objectPosition);
 
-		if (m_graphicsMemoriObjectId > 0 && m_numFacesGrid > 0)
+		for (int i = 0; i < m_gridQT.size(); i++)
 		{
-			CVector3 pos2 = m_objectPosition;
-			pos2 += CVector3(0.0f, 0.0f, 0.0f);
-			MathHelper::Matrix4 modelMatrix2 = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, pos2);
+			m_objectPosition = m_gridQT[i].getPos();
+			MathHelper::Matrix4 modelMatrix = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, m_objectPosition);
 
-			// Render pyramid in the first position, using the color shader
+		
+
 			getOpenGLRenderer()->renderObject(
 				&m_gridShaderPrgmID,
 				&m_graphicsMemoriObjectId,
@@ -501,43 +750,90 @@ void CGrid::render()
 				COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
 				false
 			);
-
-			if (!m_objs.empty()) {
-
-				for (int i = 0; i < m_objs.size(); i++) {
-					C3DModel *m_p3DModel;
-					totalDegreesRotatedRadians = m_objs[i].rotation * 3.1459 / 180.0;
-					m_p3DModel = m_objs[i].Obj;
-					pos2 = m_objs[i].cords;
-					pos2 = CVector3(m_grid[ (int)m_objs[i].cords.getX()][(int)m_objs[i].cords.getZ()].getPos().getX(), 0, m_grid[(int)m_objs[i].cords.getX()][(int)m_objs[i].cords.getZ()].getPos().getZ());
-					MathHelper::Matrix4 pos3 = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, pos2);
-					for (int i = 0; i < m_p3DModel->getNumMaterials(); i++)
-					{
-						for (int j = 0; j < m_p3DModel->getScopeMat(i).size(); j += 2)
-						{
-
-							//if (*m_p3DModel->getTextureObjId(i))continue;//
-							getOpenGLRenderer()->renderObjectMultiMat(
-								m_p3DModel->getScopeMat(i)[j],
-								m_p3DModel->getScopeMat(i)[j + 1],
-								m_p3DModel->getShaderProgramId(),
-								m_p3DModel->getGraphicsMemoryObjectId(),
-								&noTexture,
-								m_p3DModel->getNumFaces(),
-								color,
-								&pos3,
-								COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
-								false
-							);
-						}
-					}
-
-				}
-			}
 		}
-
-		// =================================
 	}
+}
+
+void CGrid::render()
+{
+	renderQT();
+	//CGameMenu *menu = getMenu();
+
+	//// If menu is active, render menu
+	//if (menu != NULL
+	//	&& menu->isInitialized()
+	//	&& menu->isActive())
+	//{
+	//	//...
+	//}
+	//else // Otherwise, render app-specific stuff here...
+	//{
+	//	// =================================
+	//	//
+	//	// White 
+	//	// Colors are in the 0..1 range, if you want to use RGB, use (R/255, G/255, G/255)
+	//	float color[3] = { 1.0f, 1.0f, 1.0f };
+	//	unsigned int noTexture = 0;
+
+	//	// convert total degrees rotated to radians;
+	//	double totalDegreesRotatedRadians = 1 * 3.1459 / 180.0;
+
+	//	// Get a matrix that has both the object rotation and translation
+	//	MathHelper::Matrix4 modelMatrix = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, m_objectPosition);
+
+	//	if (m_graphicsMemoriObjectId > 0 && m_numFacesGrid > 0)
+	//	{
+	//		CVector3 pos2 = m_objectPosition;
+	//		pos2 += CVector3(0.0f, 0.0f, 0.0f);
+	//		MathHelper::Matrix4 modelMatrix2 = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, pos2);
+
+	//		getOpenGLRenderer()->renderObject(
+	//			&m_gridShaderPrgmID,
+	//			&m_graphicsMemoriObjectId,
+	//			&noTexture,
+	//			m_numFacesGrid,
+	//			color,
+	//			&modelMatrix,
+	//			COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
+	//			false
+	//		);
+
+	//		if (!m_objs.empty()) {
+
+	//			for (int i = 0; i < m_objs.size(); i++) {
+	//				C3DModel *m_p3DModel;
+	//				totalDegreesRotatedRadians = m_objs[i].rotation * 3.1459 / 180.0;
+	//				m_p3DModel = m_objs[i].Obj;
+	//				pos2 = m_objs[i].cords;
+	//				pos2 = CVector3(m_grid[ (int)m_objs[i].cords.getX()][(int)m_objs[i].cords.getZ()].getPos().getX(), 0, m_grid[(int)m_objs[i].cords.getX()][(int)m_objs[i].cords.getZ()].getPos().getZ());
+	//				MathHelper::Matrix4 pos3 = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, pos2);
+	//				for (int i = 0; i < m_p3DModel->getNumMaterials(); i++)
+	//				{
+	//					for (int j = 0; j < m_p3DModel->getScopeMat(i).size(); j += 2)
+	//					{
+
+	//						//if (*m_p3DModel->getTextureObjId(i))continue;//
+	//						getOpenGLRenderer()->renderObjectMultiMat(
+	//							m_p3DModel->getScopeMat(i)[j],
+	//							m_p3DModel->getScopeMat(i)[j + 1],
+	//							m_p3DModel->getShaderProgramId(),
+	//							m_p3DModel->getGraphicsMemoryObjectId(),
+	//							&noTexture,
+	//							m_p3DModel->getNumFaces(),
+	//							color,
+	//							&pos3,
+	//							COpenGLRenderer::EPRIMITIVE_MODE::TRIANGLES,
+	//							false
+	//						);
+	//					}
+	//				}
+
+	//			}
+	//		}
+	//	}
+
+	//	// =================================
+	//}
 }
 
 CVector3 CGrid::getPos(int x, int y)
@@ -572,7 +868,7 @@ void CGrid::onF2(int mods)
 			cout << "Unable to load hexgrid" << endl;
 		}
 	}
-	initialize(m_col, m_row, m_cellSize, m_orientation);
+	initializeQT(m_col, m_row, m_cellSize, m_orientation);
 }
 
 void CGrid::onF4(int mods)
@@ -634,3 +930,10 @@ bool CGrid::initializeMenu()
 	//initialize(10, 10, 1, false);
 	return true;
 }
+
+CGridCell CGrid::getCell(int x, int y)
+{
+	return m_gridQT[(y*m_row) + x];
+}
+
+

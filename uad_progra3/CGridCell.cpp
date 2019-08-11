@@ -28,10 +28,15 @@ CGridCell::CGridCell(int *objIndex,float size,bool flat)
 	m_vertex[6].X = 0;
 	m_vertex[6].Y = 0;
 	m_vertex[6].Z = 0;
+	
+	X = 0;
+	Y = 0;
 }
 
 CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
 {
+	X = x;
+	Y = y;
 	float farX,awaY,par;
 	m_ObjInstanceIndex = ObjIndex;
 	if (flat) {

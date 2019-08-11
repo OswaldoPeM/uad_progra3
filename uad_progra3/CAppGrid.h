@@ -7,7 +7,9 @@
 #include"CWorld.h"
 class CAppGrid : public CApp
 {
-	CWorld *mundo;
+	CGrid *grid;
+	vector<C3DModel*> m_Objs;
+	
 protected:
 	bool initializeMenu();
 public:

@@ -4,7 +4,7 @@
 #define CFRUSTUM_H
 
 #include "MathHelper.h"
-#include "AABB.h"
+#include "../AABB.h"
 #include "CVector3.h"
 #include "CPlane.h"
 
