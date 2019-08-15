@@ -9,7 +9,7 @@ class Quadtree
 {
 public:
 	int m_trilimit;
-	QuadtreeNode<T> *m_root = nullptr;
+	QuadtreeNode<T> *m_root;
 	Quadtree();
 	Quadtree(int limit, CGrid &grid);
 
@@ -18,9 +18,8 @@ public:
 	~Quadtree();
 };
 
-
-
-Quadtree<class T>::Quadtree()
+template<class T>
+Quadtree<T>::Quadtree()
 {
 }
 
@@ -76,7 +75,7 @@ inline void Quadtree<T>::getData(vector<T*>& buffer)
 	m_root->getData(buffer);
 }
 
-
-Quadtree<class T>::~Quadtree()
+template<class T>
+Quadtree<T>::~Quadtree()
 {
 }

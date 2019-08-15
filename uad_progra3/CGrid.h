@@ -33,7 +33,9 @@ class CGrid:public CApp
 	unsigned int m_textureID = 0;
 	unsigned int m_graphicsMemoriObjectId = 0;
 
-	float *vData = nullptr, *vertexUVs = nullptr, *nData = nullptr;
+	float *vData = nullptr;
+	float *vertexUVs = nullptr;
+	float *nData = nullptr;
 	unsigned short *tIndices = nullptr, *nIndices = nullptr;
 
 	int m_numVertices, m_numNormals, m_nummUVCoord, m_numIndicesVert, m_numIndicesNormal, m_numIndicesUVCoords;

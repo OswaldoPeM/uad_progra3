@@ -139,13 +139,13 @@ void QuadtreeNode<T>::render(unsigned int *graphicsMemoriObjectId)
 }
 
 
-
-QuadtreeNode<class T>::QuadtreeNode()
+template<class T>
+QuadtreeNode<T>::QuadtreeNode()
 {
 }
 
-
-QuadtreeNode<class T>::~QuadtreeNode()
+template<class T>
+QuadtreeNode<T>::~QuadtreeNode()
 {
 	if (m_n1 != nullptr) {
 		delete m_n1;
