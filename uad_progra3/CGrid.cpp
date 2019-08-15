@@ -60,7 +60,9 @@ void CGrid::reset()
 		delete[] m_grid;
 		m_grid = nullptr;
 	}
-
+	if (QT != nullptr) {
+		delete QT;
+	}
 }
 
 void CGrid::setTIndicesSize()
@@ -237,6 +239,7 @@ bool CGrid::readWorld(const char * const filename)
 		cout << "ERROR: Cannot determine the file type" << endl;
 		return nullptr;
 	}
+	return true;
 }
 
 void CGrid::readJson(const char * const filename)
@@ -379,16 +382,16 @@ void CGrid::initialize(int cols, int  rows, float size, bool flat)
 	{
 		for (int j = 0; j < m_col; j++)
 		{
-			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, m_cellSize, flat);
+			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(0, m_cellSize, flat);
 			else {
-				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, m_orientation, i, j);
+				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), 0, m_orientation, i, j);
 				
 			}
 
 			addVData(vDataIndx, m_grid[i][j].getVecVerx());
 			addTInices(i, j, tIndIndex);
 
-			m_gridQT.push_back(m_grid[i][j]);
+			m_gridQT.push_back(&m_grid[i][j]);
 
 		}
 	}
@@ -579,38 +582,38 @@ void CGrid::initializeQT(int cols, int rows, float size, bool flat)
 	{
 		for (int j = 0; j < m_col; j++)
 		{
-			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(nullptr, m_cellSize, flat);
+			if (i == 0 && j == 0)m_grid[i][j] = CGridCell(0, m_cellSize, flat);
 			else {
-				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), nullptr, m_orientation, i, j);
+				m_grid[i][j] = CGridCell(m_grid[0][0].getVecVerx(), 0, m_orientation, i, j);
 
 			}
 
 			//addVData(vDataIndx, m_grid[i][j].getVecVerx());
 			//addTInices(i, j, tIndIndex);
 
-			m_gridQT.push_back(m_grid[i][j]);
+			m_gridQT.push_back(&m_grid[i][j]);
 
 		}
 	}
 
-	vData[0] = m_gridQT[0].getVecVerx()[0].getX();
-	vData[1] = m_gridQT[0].getVecVerx()[0].getY();
-	vData[2] = m_gridQT[0].getVecVerx()[0].getZ();
-	vData[3] = m_gridQT[0].getVecVerx()[1].getX();
-	vData[4] = m_gridQT[0].getVecVerx()[1].getY();
-	vData[5] = m_gridQT[0].getVecVerx()[1].getZ();
-	vData[6] = m_gridQT[0].getVecVerx()[2].getX();
-	vData[7] = m_gridQT[0].getVecVerx()[2].getY();
-	vData[8] = m_gridQT[0].getVecVerx()[2].getZ();
-	vData[9] = m_gridQT[0].getVecVerx()[3].getX();
-	vData[10] = m_gridQT[0].getVecVerx()[3].getY();
-	vData[11] = m_gridQT[0].getVecVerx()[3].getZ();
-	vData[12] = m_gridQT[0].getVecVerx()[4].getX();
-	vData[13] = m_gridQT[0].getVecVerx()[4].getY();
-	vData[14] = m_gridQT[0].getVecVerx()[4].getZ();
-	vData[15] = m_gridQT[0].getVecVerx()[5].getX();
-	vData[16] = m_gridQT[0].getVecVerx()[5].getY();
-	vData[17] = m_gridQT[0].getVecVerx()[5].getZ();
+	vData[0] = m_gridQT[0]->getVecVerx()[0].getX();
+	vData[1] = m_gridQT[0]->getVecVerx()[0].getY();
+	vData[2] = m_gridQT[0]->getVecVerx()[0].getZ();
+	vData[3] = m_gridQT[0]->getVecVerx()[1].getX();
+	vData[4] = m_gridQT[0]->getVecVerx()[1].getY();
+	vData[5] = m_gridQT[0]->getVecVerx()[1].getZ();
+	vData[6] = m_gridQT[0]->getVecVerx()[2].getX();
+	vData[7] = m_gridQT[0]->getVecVerx()[2].getY();
+	vData[8] = m_gridQT[0]->getVecVerx()[2].getZ();
+	vData[9] = m_gridQT[0]->getVecVerx()[3].getX();
+	vData[10] = m_gridQT[0]->getVecVerx()[3].getY();
+	vData[11] = m_gridQT[0]->getVecVerx()[3].getZ();
+	vData[12] = m_gridQT[0]->getVecVerx()[4].getX();
+	vData[13] = m_gridQT[0]->getVecVerx()[4].getY();
+	vData[14] = m_gridQT[0]->getVecVerx()[4].getZ();
+	vData[15] = m_gridQT[0]->getVecVerx()[5].getX();
+	vData[16] = m_gridQT[0]->getVecVerx()[5].getY();
+	vData[17] = m_gridQT[0]->getVecVerx()[5].getZ();
 
 	//
 	vertexUVs[0] = 0.5f;
@@ -728,14 +731,14 @@ void CGrid::renderQT()
 
 		float color[3] = { 1.0f, 1.0f, 1.0f };
 		unsigned int noTexture = 0;
-		double totalDegreesRotatedRadians = 3.1459 / 180.0;
+		double totalDegreesRotatedRadians = 0*3.1459 / 180.0;
 
 		
 
 
-		for (int i = 0; i < m_gridQT.size(); i++)
+		for (int i = 0; i < VisibleObj.size(); i++)
 		{
-			m_objectPosition = m_gridQT[i].getPos();
+			m_objectPosition = VisibleObj[i]->getPos();
 			MathHelper::Matrix4 modelMatrix = MathHelper::SimpleModelMatrixRotationTranslation((float)totalDegreesRotatedRadians, m_objectPosition);
 
 		
@@ -756,6 +759,9 @@ void CGrid::renderQT()
 
 void CGrid::render()
 {
+	QT = new Quadtree<CGridCell>(100, *this);
+	VisibleObj;
+	QT->getData(VisibleObj);
 	renderQT();
 	//CGameMenu *menu = getMenu();
 
@@ -933,7 +939,7 @@ bool CGrid::initializeMenu()
 
 CGridCell CGrid::getCell(int x, int y)
 {
-	return m_gridQT[(y*m_row) + x];
+	return *m_gridQT[(y*m_row) + x];
 }
 
 

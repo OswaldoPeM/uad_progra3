@@ -20,12 +20,10 @@ class CGrid:public CApp
 	CGridCell **m_grid = nullptr;
 	CVector3 m_objectPosition{ 0.0f,0.0f,0.0f };
 	std::vector<CObjInstance> m_objs;
-
-	int m_col, m_row, m_numFacesGrid, m_renderPolygonMode;
+	
 	float  m_cellSize;
 	bool loaded = false;
 	bool m_initialized;
-	bool m_orientation;
 
 	double m_objectRotatiion;
 	double m_objecrotatiionSpeed;
@@ -57,6 +55,9 @@ class CGrid:public CApp
 
 	
 public:
+	int m_col, m_row, m_numFacesGrid, m_renderPolygonMode;
+	bool m_orientation;
+	
 	CGrid();
 	CGrid(int window_width, int window_height);
 	~CGrid();
@@ -73,8 +74,9 @@ public:
 	bool initializeMenu();
 	CGridCell getCell(int x, int y);
 	CVector3 getPos(int x, int y);
-	vector<CGridCell> m_gridQT;
-
+	vector<CGridCell*> m_gridQT;
+	vector<CGridCell*> VisibleObj;
+	Quadtree<CGridCell> *QT;
 	void onF2(int mods);
 	void onF4(int mods);
 	void onArrowUp(int mods);

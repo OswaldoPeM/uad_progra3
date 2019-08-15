@@ -1,4 +1,5 @@
 #include"Include/CVector3.h"
+#include"CObjInstance.h"
 #include<math.h>
 #pragma once
 
@@ -10,23 +11,25 @@ class CGridCell
 	void getVertex(float* buf);
 	
 
-	int *m_ObjInstanceIndex = nullptr;
+	int m_ObjInstanceIndex;
 	unsigned int m_textureID=1;
 
 
 public:
 	CGridCell();
-	CGridCell(int *objIndex, float size, bool flat);
-	CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat, int x, int y);
+	CGridCell(int objIndex, float size, bool flat);
+	CGridCell(CVector3 *firstCell, int ObjIndex, bool flat, int x, int y);
 	~CGridCell();
 
 	int X, Y;
+	bool OBJ = false;
+	CObjInstance objQT;
 
-	void setObjIns(int *objIns);
+	void setObjIns(int objIns);
 	void setTextureID(unsigned int texID);
 
-	int* getObjins();
+	int getObjins();
 	CVector3 *getVecVerx();
 	CVector3 getPos();
-	int *getObjInstance();
+	int getObjInstance();
 };

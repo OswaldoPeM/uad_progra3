@@ -10,7 +10,6 @@ class CObjInstance
 public:
 	C3DModel *Obj;
 	const char* fileName;
-	CVector3 cords;
 	float scale,rotation;
 
 	CObjInstance();

@@ -16,12 +16,12 @@ CGridCell::CGridCell()
 {
 }
 
-CGridCell::CGridCell(int *objIndex,float size,bool flat)
+CGridCell::CGridCell(int objIndex,float size,bool flat)
 {
 	m_ObjInstanceIndex = objIndex;
 	for (int i = 0; i < 6; i++)
 	{
-		m_vertex[i].X = (!flat) ? cos(((60 * i) )*(3.14159265359/180.0))*size : cosf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
+		m_vertex[i].X = (!flat) ? cosf(((60 * i) )*(3.14159265359/180.0))*size : cosf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
 		m_vertex[i].Y = 0;
 		m_vertex[i].Z = (!flat) ? sin(((60 * i) )*(3.14159265359 / 180.0))*size : sinf(((60 * i) - 30)*(3.14159265359 / 180.0))*size;
 	}
@@ -33,7 +33,7 @@ CGridCell::CGridCell(int *objIndex,float size,bool flat)
 	Y = 0;
 }
 
-CGridCell::CGridCell(CVector3 *firstCell, int *ObjIndex, bool flat,int x,int y)
+CGridCell::CGridCell(CVector3 *firstCell, int ObjIndex, bool flat,int x,int y)
 {
 	X = x;
 	Y = y;
@@ -72,12 +72,12 @@ CGridCell::~CGridCell()
 
 
 
-int *CGridCell::getObjInstance()
+int CGridCell::getObjInstance()
 {
 	return m_ObjInstanceIndex;
 }
 
-void CGridCell::setObjIns(int *objIns)
+void CGridCell::setObjIns(int objIns)
 {
 	m_ObjInstanceIndex = objIns;
 }
@@ -87,7 +87,7 @@ void CGridCell::setTextureID(unsigned int texID)
 	m_textureID = texID;
 }
 
-int * CGridCell::getObjins()
+int  CGridCell::getObjins()
 {
 	return m_ObjInstanceIndex;
 }
